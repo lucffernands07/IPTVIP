@@ -1,5 +1,5 @@
 async function loadM3U(url) {
-  const proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+  const proxy = "https://cors-proxy.fringe.zone/raw?url=" + encodeURIComponent(url);
   const response = await fetch(proxy);
   const text = await response.text();
 
