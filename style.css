@@ -1,0 +1,37 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #111;
+  color: #fff;
+}
+
+header {
+  text-align: center;
+  padding: 10px;
+  background: #222;
+}
+
+.upload-section, .channels-section, .player-section {
+  padding: 10px;
+}
+
+#channel-list {
+  list-style: none;
+  padding: 0;
+}
+
+#channel-list li {
+  padding: 8px;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+}
+
+#channel-list li.favorite {
+  color: #ff0;
+}
+
+video {
+  width: 100%;
+  height: auto;
+  background: black;
+}
