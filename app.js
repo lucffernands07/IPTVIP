@@ -47,7 +47,7 @@ function playChannel(url) {
     hls.loadSource(url);
     hls.attachMedia(player);
   } else {
-    player.src = url; // fallback para navegadores que suportam nativo HLS
+    player.src = url; // fallback
   }
 }
 
