@@ -3,29 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IPTVIP</title>
-  <link rel="stylesheet" href="style.css?v=1.1">
-  <link rel="manifest" href="manifest.json">
+  <title>IPTVIP Player</title>
+  <link rel="stylesheet" href="style.css?v=1.0">
 </head>
 <body>
-  <header>
-    <h1>IPTVIP</h1>
-  </header>
+  <h2>📺 IPTVIP Player</h2>
 
-  <!-- Controles -->
-  <section class="controls-section">
-    <button id="clear-favorites">Limpar Favoritos</button>
-  </section>
+  <input id="m3uUrl" type="text" placeholder="Cole seu link M3U aqui" value="http://manchete.asia/get.php?username=Pano071284&password=07122020et&type=m3u_plus&output=m3u8">
+  <button id="loadBtn">Carregar Lista</button>
 
-  <!-- Lista de canais -->
-  <section class="channels-section">
-    <ul id="channel-list"></ul>
-  </section>
+  <div id="channelList"></div>
 
-  <!-- Player -->
-  <section class="player-section">
-    <video id="player" controls autoplay></video>
-  </section>
+  <video id="videoPlayer" controls autoplay style="width:100%; max-height:70vh; background:#000; margin-top:15px;"></video>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script src="app.js?v=1.1"></script>
