@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPTVIP</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <header>
+    <h1>IPTVIP</h1>
+  </header>
+
+  <section class="upload-section">
+    <input type="file" id="file-input" accept=".m3u,.m3u8">
+    <button id="clear-favorites">Limpar Favoritos</button>
+  </section>
+
+  <section class="channels-section">
+    <ul id="channel-list"></ul>
+  </section>
+
+  <section class="player-section">
+    <video id="player" controls autoplay></video>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="app.js"></script>
+</body>
+</html>
