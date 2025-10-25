@@ -1,70 +1,47 @@
-const channelList = document.getElementById('channel-list');
-const player = document.getElementById('player');
-const clearFavoritesBtn = document.getElementById('clear-favorites');
+async function loadM3U(url) {
+  const proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
+  const response = await fetch(proxy);
+  const text = await response.text();
 
-let channels = [];
-let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+  const lines = text.split("\n");
+  const listDiv = document.getElementById("channelList");
+  listDiv.innerHTML = "";
 
-function saveFavorites() {
-  localStorage.setItem('favorites', JSON.stringify(favorites));
-}
-
-function renderChannels() {
-  channelList.innerHTML = '';
-  channels.forEach(ch => {
-    const li = document.createElement('li');
-    li.textContent = ch.name;
-    if(favorites.includes(ch.name)) li.classList.add('favorite');
-
-    li.addEventListener('click', () => playChannel(ch.url));
-    li.addEventListener('dblclick', () => toggleFavorite(ch.name, li));
-
-    channelList.appendChild(li);
-  });
-}
-
-function toggleFavorite(name, li) {
-  if(favorites.includes(name)){
-    favorites = favorites.filter(f => f !== name);
-    li.classList.remove('favorite');
-  } else {
-    favorites.push(name);
-    li.classList.add('favorite');
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].startsWith("#EXTINF")) {
+      const nameMatch = lines[i].split(",")[1] || "Canal Desconhecido";
+      const streamUrl = lines[i + 1];
+      if (streamUrl && streamUrl.startsWith("http")) {
+        const btn = document.createElement("div");
+        btn.className = "channel";
+        btn.textContent = nameMatch;
+        btn.onclick = () => playChannel(streamUrl);
+        listDiv.appendChild(btn);
+      }
+    }
   }
-  saveFavorites();
 }
 
 function playChannel(url) {
+  const video = document.getElementById("videoPlayer");
   if (Hls.isSupported()) {
     const hls = new Hls();
     hls.loadSource(url);
-    hls.attachMedia(player);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+  } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+    video.src = url;
+    video.addEventListener("loadedmetadata", () => video.play());
   } else {
-    player.src = url;
+    alert("Seu navegador não suporta streaming HLS 😢");
   }
 }
 
-// Lista M3U online
-const m3uUrl = 'http://manchete.asia/get.php?username=Pano071284&password=07122020et&type=m3u_plus&output=m3u8';
-
-fetch(m3uUrl)
-  .then(res => res.text())
-  .then(text => {
-    const lines = text.split('\n');
-    channels = [];
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].startsWith('#EXTINF')) {
-        const name = lines[i].split(',')[1] || 'Canal';
-        const url = lines[i+1];
-        channels.push({ name, url });
-      }
-    }
-    renderChannels();
-  })
-  .catch(err => console.error('Erro ao carregar a lista M3U:', err));
-
-clearFavoritesBtn.addEventListener('click', () => {
-  favorites = [];
-  saveFavorites();
-  renderChannels();
+document.getElementById("loadBtn").addEventListener("click", () => {
+  const m3uUrl = document.getElementById("m3uUrl").value.trim();
+  if (m3uUrl) {
+    loadM3U(m3uUrl);
+  } else {
+    alert("Cole o link M3U primeiro!");
+  }
 });
