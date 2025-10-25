@@ -11,13 +11,15 @@ header {
   background: #222;
 }
 
-.channels-section, .player-section {
+.controls-section, .channels-section, .player-section {
   padding: 10px;
 }
 
 #channel-list {
   list-style: none;
   padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 #channel-list li {
@@ -34,4 +36,4 @@ video {
   width: 100%;
   height: auto;
   background: black;
-}
+}}
