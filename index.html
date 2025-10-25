@@ -9,14 +9,25 @@
 <body>
   <h2>📺 IPTVIP Player</h2>
 
-  <input id="m3uUrl" type="text" placeholder="Cole seu link M3U aqui" value="http://manchete.asia/get.php?username=Pano071284&password=07122020et&type=m3u_plus&output=m3u8">
+  <input id="m3uUrl" type="text"
+         placeholder="Cole seu link M3U aqui"
+         value="https://iptv-org.github.io/iptv/index.m3u">
   <button id="loadBtn">Carregar Lista</button>
 
-  <div id="channelList"></div>
+  <div id="channelList" style="margin-top:10px"></div>
 
-  <video id="videoPlayer" controls autoplay style="width:100%; max-height:70vh; background:#000; margin-top:15px;"></video>
+  <video id="videoPlayer" controls autoplay
+         style="width:100%; max-height:70vh; background:#000; margin-top:15px;"></video>
 
+  <!-- Player -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <script src="app.js?v=1.2"></script>
+  <script src="app.js?v=1.3"></script>
+
+  <!-- Eruda: Console para celular -->
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>
+    eruda.init();
+    console.log("🪄 Eruda carregado! Para abrir: toque no canto inferior direito.");
+  </script>
 </body>
 </html>
