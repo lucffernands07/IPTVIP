@@ -1,16 +1,15 @@
-// Nome do cache, atualize a cada versão do app
-const SW_VERSION = 'v1.3.4';
+// Defina a versão apenas uma vez
+const APP_VERSION = 'v1.3.2';
+const cacheName = `iptvip-cache-${APP_VERSION}`;
 
-// Arquivos que queremos manter no cache
 const assetsToCache = [
   '/',
   '/index.html',
   '/style.css',
-  '/app.js?v=1.5',  // sua versão do app.js
+  `/app.js?v=${APP_VERSION}`,
   'https://cdn.jsdelivr.net/npm/hls.js@latest'
 ];
 
-// Instala o Service Worker e faz cache dos assets
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(cacheName)
@@ -19,27 +18,24 @@ self.addEventListener('install', event => {
   );
 });
 
-// Ativa o SW e remove caches antigos
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(key => key !== cacheName).map(key => caches.delete(key))
-    ))
-    .then(() => self.clients.claim())
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.filter(key => key !== cacheName).map(key => caches.delete(key))
+      )
+    ).then(() => self.clients.claim())
   );
 });
 
-// Intercepta requests e serve do cache, se possível
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      return cached || fetch(event.request);
-    })
+    caches.match(event.request).then(cached => cached || fetch(event.request))
   );
 });
 
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'get-sw-version') {
-    event.source.postMessage({ type: 'sw-version', version: SW_VERSION });
+  if (event.data?.type === 'get-sw-version') {
+    event.source.postMessage({ type: 'sw-version', version: APP_VERSION });
   }
 });
