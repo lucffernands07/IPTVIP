@@ -36,3 +36,9 @@ self.addEventListener('fetch', event => {
     })
   );
 });
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'get-sw-version') {
+    event.source.postMessage({ type: 'sw-version', version: SW_VERSION });
+  }
+});
