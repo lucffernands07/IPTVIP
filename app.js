@@ -1,3 +1,20 @@
+// Elemento para mostrar a versão
+const versionEl = document.createElement('p');
+versionEl.textContent = 'Service Worker: carregando...';
+document.body.insertBefore(versionEl, document.body.firstChild);
+
+// Envia mensagem para o Service Worker pedindo a versão
+if (navigator.serviceWorker.controller) {
+  navigator.serviceWorker.controller.postMessage({ type: 'get-sw-version' });
+}
+
+// Recebe a resposta do Service Worker
+navigator.serviceWorker.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'sw-version') {
+    versionEl.textContent = `Service Worker: ${event.data.version}`;
+  }
+});
+
 const input = document.getElementById('m3uUrl');
 const button = document.getElementById('loadBtn');
 const list = document.getElementById('channelList');
