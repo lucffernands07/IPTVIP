@@ -1,17 +1,3 @@
-// Mostrar versão do SW
-const versionEl = document.createElement('p');
-versionEl.textContent = 'Service Worker: carregando...';
-document.body.insertBefore(versionEl, document.body.firstChild);
-
-if (navigator.serviceWorker.controller) {
-  navigator.serviceWorker.controller.postMessage({ type: 'get-sw-version' });
-}
-navigator.serviceWorker.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'sw-version') {
-    versionEl.textContent = `Service Worker: ${event.data.version}`;
-  }
-});
-
 const input = document.getElementById('m3uUrl');
 const button = document.getElementById('loadBtn');
 const list = document.getElementById('channelList');
