@@ -1,14 +1,11 @@
-// Elemento para mostrar a versão
+// Mostrar versão do SW
 const versionEl = document.createElement('p');
 versionEl.textContent = 'Service Worker: carregando...';
 document.body.insertBefore(versionEl, document.body.firstChild);
 
-// Envia mensagem para o Service Worker pedindo a versão
 if (navigator.serviceWorker.controller) {
   navigator.serviceWorker.controller.postMessage({ type: 'get-sw-version' });
 }
-
-// Recebe a resposta do Service Worker
 navigator.serviceWorker.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'sw-version') {
     versionEl.textContent = `Service Worker: ${event.data.version}`;
@@ -23,48 +20,51 @@ const statusText = document.createElement('p');
 statusText.textContent = "Aguardando...";
 document.body.insertBefore(statusText, list);
 
-// Worker proxy
-const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/?url=";
+// Worker proxy (com paginação)
+const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/";
 
-button.addEventListener('click', loadM3U);
+let currentPage = 1;
+let currentM3U = '';
+const limit = 100; // canais por página
 
-async function loadM3U() {
-  const m3u = input.value.trim();
-  if (!m3u) return alert("Cole um link M3U válido!");
+button.addEventListener('click', () => {
+  currentPage = 1;
+  currentM3U = input.value.trim();
+  if (!currentM3U) return alert("Cole um link M3U válido!");
+  list.innerHTML = '';
+  loadM3UPage();
+});
 
-  statusText.textContent = "⏳ Carregando canais...";
-  list.innerHTML = "";
-  let channels = [];
-  let buffer = "";
+async function loadM3UPage() {
+  statusText.textContent = `⏳ Carregando página ${currentPage}...`;
+  const url = `${WORKER_URL}?url=${encodeURIComponent(currentM3U)}&page=${currentPage}&limit=${limit}`;
 
   try {
-    const res = await fetch(WORKER_URL + encodeURIComponent(m3u));
-    if (!res.ok || !res.body) throw new Error("Erro ao buscar lista");
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Erro ao buscar lista');
 
-    // leitura em streaming (linha a linha)
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    let chunk;
-    while (!(chunk = await reader.read()).done) {
-      buffer += decoder.decode(chunk.value, { stream: true });
-      let lines = buffer.split('\n');
-      buffer = lines.pop(); // mantém o pedaço incompleto
+    const text = await res.text();
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l);
 
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].startsWith('#EXTINF')) {
-          const name = lines[i].split(',').pop().trim();
-          const url = lines[i + 1]?.trim();
-          if (url && url.startsWith('http')) {
-            channels.push({ name, url });
-            if (channels.length <= 300) addChannelButton(name, url); // exibe até 300 canais
-          }
+    let added = 0;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].startsWith('#EXTINF')) {
+        const name = lines[i].split(',').pop().trim();
+        const streamUrl = lines[i + 1]?.trim();
+        if (streamUrl && streamUrl.startsWith('http')) {
+          addChannelButton(name, streamUrl);
+          added++;
         }
       }
-
-      statusText.textContent = `📺 Lendo... ${channels.length} canais`;
     }
 
-    statusText.textContent = `✅ ${channels.length} canais carregados`;
+    if (added > 0) {
+      statusText.textContent = `✅ Página ${currentPage} (${added} canais)`;
+      showLoadMoreButton();
+    } else {
+      statusText.textContent = `🎬 Fim da lista.`;
+      hideLoadMoreButton();
+    }
   } catch (err) {
     console.error(err);
     statusText.textContent = "❌ Erro ao carregar lista";
@@ -85,11 +85,4 @@ function playChannel(url) {
     const hls = new Hls();
     hls.loadSource(url);
     hls.attachMedia(player);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => player.play());
-  } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
-    player.src = url;
-    player.play();
-  } else {
-    alert("Seu navegador não suporta reprodução de vídeo M3U8.");
-  }
-}
+    hl
