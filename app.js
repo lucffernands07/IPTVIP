@@ -38,7 +38,8 @@ async function loadM3UPage() {
         const name = lines[i].split(',').pop().trim();
         const streamUrl = lines[i + 1]?.trim();
         if (streamUrl && streamUrl.startsWith('http')) {
-          addChannelButton(name, streamUrl);
+          const proxyUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
+          addChannelButton(name, proxyUrl);
           added++;
         }
       }
