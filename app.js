@@ -1,9 +1,9 @@
+// Elementos da página
 const input = document.getElementById('m3uUrl');
 const button = document.getElementById('loadBtn');
 const list = document.getElementById('channelList');
 const player = document.getElementById('videoPlayer');
 const statusText = document.createElement('p');
-
 document.body.insertBefore(statusText, list);
 
 // Worker proxy (com paginação)
@@ -12,7 +12,9 @@ const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/";
 let currentPage = 1;
 let currentM3U = '';
 const limit = 100; // canais por página
+let loadMoreBtn = null;
 
+// Botão carregar lista
 button.addEventListener('click', () => {
   currentPage = 1;
   currentM3U = input.value.trim();
@@ -21,6 +23,7 @@ button.addEventListener('click', () => {
   loadM3UPage();
 });
 
+// Função para carregar página da lista
 async function loadM3UPage() {
   statusText.textContent = `⏳ Carregando página ${currentPage}...`;
   const url = `${WORKER_URL}?url=${encodeURIComponent(currentM3U)}&page=${currentPage}&limit=${limit}`;
@@ -38,6 +41,7 @@ async function loadM3UPage() {
         const name = lines[i].split(',').pop().trim();
         const streamUrl = lines[i + 1]?.trim();
         if (streamUrl && streamUrl.startsWith('http')) {
+          // Proxy HLS via Worker
           const proxyUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
           addChannelButton(name, proxyUrl);
           added++;
@@ -52,12 +56,14 @@ async function loadM3UPage() {
       statusText.textContent = `🎬 Fim da lista.`;
       hideLoadMoreButton();
     }
+
   } catch (err) {
     console.error(err);
     statusText.textContent = "❌ Erro ao carregar lista";
   }
 }
 
+// Cria botão de canal
 function addChannelButton(name, url) {
   const btn = document.createElement('button');
   btn.textContent = name;
@@ -67,6 +73,7 @@ function addChannelButton(name, url) {
   list.appendChild(btn);
 }
 
+// Função para reproduzir canal
 function playChannel(url) {
   if (Hls.isSupported()) {
     const hls = new Hls();
@@ -82,8 +89,6 @@ function playChannel(url) {
 }
 
 // --- Paginação UI ---
-let loadMoreBtn = null;
-
 function showLoadMoreButton() {
   if (!loadMoreBtn) {
     loadMoreBtn = document.createElement('button');
