@@ -3,7 +3,7 @@ const button = document.getElementById('loadBtn');
 const list = document.getElementById('channelList');
 const player = document.getElementById('videoPlayer');
 const statusText = document.createElement('p');
-statusText.textContent = "Aguardando...";
+
 document.body.insertBefore(statusText, list);
 
 // Worker proxy (com paginação)
