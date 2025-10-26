@@ -4,7 +4,7 @@ console.log("✅ app.js carregado");
 async function loadM3U(url) {
   try {
     console.log("📡 Carregando lista:", url);
-    const proxy = "https://api.allorigins.win/raw?url=";
+    const proxy = "https://iptvip-proxy.lucianoffernands.workers.dev/?url=";
     const response = await fetch(proxy + encodeURIComponent(url));
 
     if (!response.ok) throw new Error("Erro ao baixar lista");
