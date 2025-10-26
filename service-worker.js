@@ -1,5 +1,5 @@
 // Nome do cache, atualize a cada versão do app
-const cacheName = 'iptvip-cache-v1.2.1';
+const cacheName = 'iptvip-cache-v1.2.2';
 
 // Arquivos que queremos manter no cache
 const assetsToCache = [
