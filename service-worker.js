@@ -46,13 +46,6 @@ self.addEventListener('fetch', event => {
   }
 });
 
-// Mensagem para exibir versão no front
-self.addEventListener('message', (event) => {
-  if (event.data?.type === 'get-sw-version') {
-    event.source.postMessage({ type: 'sw-version', version: APP_VERSION });
-  }
-});
-
 // ============================
 // 🔹 Funções auxiliares
 // ============================
