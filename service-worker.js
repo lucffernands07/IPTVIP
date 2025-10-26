@@ -1,4 +1,4 @@
-const cacheName = 'iptvip-cache-v2.1.0';
+const cacheName = 'iptvip-cache-v1.1.0';
 const assets = [
   './',
   './index.html',
