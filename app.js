@@ -85,4 +85,33 @@ function playChannel(url) {
     const hls = new Hls();
     hls.loadSource(url);
     hls.attachMedia(player);
-    hl
+    hls.on(Hls.Events.MANIFEST_PARSED, () => player.play());
+  } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+    player.src = url;
+    player.play();
+  } else {
+    alert("Seu navegador não suporta reprodução de vídeo M3U8.");
+  }
+}
+
+// --- Paginação UI ---
+let loadMoreBtn = null;
+
+function showLoadMoreButton() {
+  if (!loadMoreBtn) {
+    loadMoreBtn = document.createElement('button');
+    loadMoreBtn.id = 'loadMoreBtn';
+    loadMoreBtn.textContent = "⬇️ Carregar mais canais";
+    loadMoreBtn.style.margin = '10px 0';
+    loadMoreBtn.onclick = () => {
+      currentPage++;
+      loadM3UPage();
+    };
+    document.body.appendChild(loadMoreBtn);
+  }
+  loadMoreBtn.style.display = 'block';
+}
+
+function hideLoadMoreButton() {
+  if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+}
