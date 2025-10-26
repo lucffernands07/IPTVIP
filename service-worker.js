@@ -1,5 +1,5 @@
 // Nome do cache, atualize a cada versão do app
-const SW_VERSION = 'v1.3.3';
+const SW_VERSION = 'v1.3.4';
 
 // Arquivos que queremos manter no cache
 const assetsToCache = [
@@ -25,6 +25,7 @@ self.addEventListener('activate', event => {
     caches.keys().then(keys => Promise.all(
       keys.filter(key => key !== cacheName).map(key => caches.delete(key))
     ))
+    .then(() => self.clients.claim())
   );
 });
 
