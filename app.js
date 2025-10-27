@@ -26,7 +26,7 @@ button.addEventListener('click', () => {
 // Função para carregar página da lista
 async function loadM3UPage() {
   statusText.textContent = `⏳ Carregando página ${currentPage}...`;
-  const url = `${WORKER_URL}?url=${encodeURIComponent(currentM3U)}&page=${currentPage}&limit=${limit}`;
+  const url = `${WORKER_URL}?url=${currentM3U}&page=${currentPage}&limit=${limit}`;
 
   try {
     const res = await fetch(url);
