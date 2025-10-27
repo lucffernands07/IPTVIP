@@ -2,7 +2,7 @@
 // 🔸 IPTV Player Service Worker
 // ============================
 
-const APP_VERSION = 'v1.5.0';
+const APP_VERSION = 'v1.6.0';
 const cacheName = `iptvip-cache-${APP_VERSION}`;
 
 const assetsToCache = [
@@ -60,3 +60,12 @@ async function cacheFirstThenNetwork(request) {
   }).catch(() => cachedResponse);
   return cachedResponse || fetchPromise;
 }
+
+// ============================
+// 🔸 Comunicação com o Front-end (mostrar versão)
+// ============================
+self.addEventListener("message", (event) => {
+  if (event.data === "getVersion") {
+    event.source.postMessage({ type: "version", version: APP_VERSION });
+  }
+});
