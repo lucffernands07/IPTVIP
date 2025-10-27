@@ -112,4 +112,34 @@ function showLoadMoreButton() {
 
 function hideLoadMoreButton() {
   if (loadMoreBtn) loadMoreBtn.style.display = 'none';
-                  }
+}
+
+// === Mostrar versão no canto superior direito ===
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.ready.then((registration) => {
+    registration.active.postMessage("getVersion");
+
+    navigator.serviceWorker.addEventListener("message", (event) => {
+      if (event.data?.type === "version") {
+        showAppVersion(event.data.version);
+      }
+    });
+  });
+}
+
+function showAppVersion(version) {
+  const badge = document.createElement('div');
+  badge.textContent = version;
+  badge.style.position = 'fixed';
+  badge.style.top = '8px';
+  badge.style.right = '10px';
+  badge.style.background = 'rgba(0,0,0,0.5)';
+  badge.style.color = '#fff';
+  badge.style.fontSize = '10px';
+  badge.style.padding = '3px 6px';
+  badge.style.borderRadius = '6px';
+  badge.style.zIndex = '9999';
+  badge.style.fontFamily = 'monospace';
+  badge.style.opacity = '0.8';
+  document.body.appendChild(badge);
+}
