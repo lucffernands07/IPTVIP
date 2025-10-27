@@ -1,4 +1,4 @@
-// Elementos da página
+// === Elementos principais ===
 const input = document.getElementById('m3uUrl');
 const button = document.getElementById('loadBtn');
 const list = document.getElementById('channelList');
@@ -6,31 +6,31 @@ const player = document.getElementById('videoPlayer');
 const statusText = document.createElement('p');
 document.body.insertBefore(statusText, list);
 
-// Worker proxy (com paginação)
 const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/";
+const limit = 100;
 
 let currentPage = 1;
 let currentM3U = '';
-const limit = 100; // canais por página
 let loadMoreBtn = null;
+let hls = null;
 
-// Botão carregar lista
+// === Carregar lista ===
 button.addEventListener('click', () => {
-  currentPage = 1;
   currentM3U = input.value.trim();
-  if (!currentM3U) return alert("Cole um link M3U válido!");
+  if (!currentM3U) return alert("Cole o link M3U completo!");
   list.innerHTML = '';
+  currentPage = 1;
   loadM3UPage();
 });
 
-// Função para carregar página da lista
+// === Função para carregar lista paginada ===
 async function loadM3UPage() {
-  statusText.textContent = `⏳ Carregando página ${currentPage}...`;
+  statusText.textContent = `⏳ Carregando canais...`;
   const url = `${WORKER_URL}?url=${encodeURIComponent(currentM3U)}&page=${currentPage}&limit=${limit}`;
 
   try {
     const res = await fetch(url);
-    if (!res.ok) throw new Error('Erro ao buscar lista');
+    if (!res.ok) throw new Error('Erro ao buscar lista M3U');
 
     const text = await res.text();
     const lines = text.split('\n').map(l => l.trim()).filter(l => l);
@@ -51,11 +51,8 @@ async function loadM3UPage() {
     if (added > 0) {
       statusText.textContent = `✅ Página ${currentPage} (${added} canais)`;
       showLoadMoreButton();
-    } else if (currentPage === 1) {
-      statusText.textContent = `❌ Nenhum canal encontrado`;
-      hideLoadMoreButton();
     } else {
-      statusText.textContent = `🎬 Fim da lista.`;
+      statusText.textContent = "🎬 Fim da lista.";
       hideLoadMoreButton();
     }
 
@@ -65,7 +62,7 @@ async function loadM3UPage() {
   }
 }
 
-// Cria botão de canal
+// === Criar botões de canais ===
 function addChannelButton(name, url) {
   const btn = document.createElement('button');
   btn.textContent = name;
@@ -75,26 +72,33 @@ function addChannelButton(name, url) {
   list.appendChild(btn);
 }
 
-// Função para reproduzir canal
+// === Reproduzir canal ===
 function playChannel(url) {
+  // Fecha player anterior
+  if (hls) {
+    hls.destroy();
+    hls = null;
+  }
+
   if (Hls.isSupported()) {
-    const hls = new Hls();
+    hls = new Hls();
     hls.loadSource(url);
     hls.attachMedia(player);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => player.play());
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      player.play().catch(() => alert("Clique no player para iniciar o vídeo."));
+    });
   } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
     player.src = url;
     player.play();
   } else {
-    alert("Seu navegador não suporta reprodução de vídeo M3U8.");
+    alert("Seu navegador não suporta M3U8.");
   }
 }
 
-// --- Paginação UI ---
+// === Paginação ===
 function showLoadMoreButton() {
   if (!loadMoreBtn) {
     loadMoreBtn = document.createElement('button');
-    loadMoreBtn.id = 'loadMoreBtn';
     loadMoreBtn.textContent = "⬇️ Carregar mais canais";
     loadMoreBtn.style.margin = '10px 0';
     loadMoreBtn.onclick = () => {
@@ -108,4 +112,4 @@ function showLoadMoreButton() {
 
 function hideLoadMoreButton() {
   if (loadMoreBtn) loadMoreBtn.style.display = 'none';
-}
+                  }
