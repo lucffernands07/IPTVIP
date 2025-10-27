@@ -32,16 +32,28 @@ async function loadM3UPage() {
     const res = await fetch(url);
     if (!res.ok) throw new Error('Erro ao buscar lista');
 
-    const data = await res.json(); // <-- mudar de text() para json()
-    const channels = data.channels || [];
+    const text = await res.text();
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l);
 
-    if (channels.length) {
-      channels.forEach(ch => {
-        const proxyUrl = `${WORKER_URL}stream?url=${encodeURIComponent(ch.url)}`;
-        addChannelButton(ch.name, proxyUrl);
-      });
-      statusText.textContent = `✅ Página ${currentPage} (${channels.length} canais)`;
+    let added = 0;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].startsWith('#EXTINF')) {
+        const name = lines[i].split(',').pop().trim();
+        const streamUrl = lines[i + 1]?.trim();
+        if (streamUrl && streamUrl.startsWith('http')) {
+          const proxyUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
+          addChannelButton(name, proxyUrl);
+          added++;
+        }
+      }
+    }
+
+    if (added > 0) {
+      statusText.textContent = `✅ Página ${currentPage} (${added} canais)`;
       showLoadMoreButton();
+    } else if (currentPage === 1) {
+      statusText.textContent = `❌ Nenhum canal encontrado`;
+      hideLoadMoreButton();
     } else {
       statusText.textContent = `🎬 Fim da lista.`;
       hideLoadMoreButton();
