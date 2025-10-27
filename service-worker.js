@@ -64,8 +64,11 @@ async function cacheFirstThenNetwork(request) {
 // ============================
 // 🔸 Comunicação com o Front-end (mostrar versão)
 // ============================
-self.addEventListener("message", (event) => {
-  if (event.data === "getVersion") {
-    event.source.postMessage({ type: "version", version: APP_VERSION });
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'get-sw-version') {
+    event.source.postMessage({
+      type: 'sw-version',
+      version: APP_VERSION
+    });
   }
 });
