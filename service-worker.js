@@ -2,7 +2,7 @@
 // 🔸 IPTV Player Service Worker
 // ============================
 
-const APP_VERSION = 'v1.4.9';
+const APP_VERSION = 'v1.4.10';
 const cacheName = `iptvip-cache-${APP_VERSION}`;
 
 const assetsToCache = [
