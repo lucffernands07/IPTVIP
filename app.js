@@ -26,31 +26,21 @@ button.addEventListener('click', () => {
 // Função para carregar página da lista
 async function loadM3UPage() {
   statusText.textContent = `⏳ Carregando página ${currentPage}...`;
-  const url = `${WORKER_URL}?url=${currentM3U}&page=${currentPage}&limit=${limit}`;
+  const url = `${WORKER_URL}?url=${encodeURIComponent(currentM3U)}&page=${currentPage}&limit=${limit}`;
 
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error('Erro ao buscar lista');
 
-    const text = await res.text();
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+    const data = await res.json(); // <-- mudar de text() para json()
+    const channels = data.channels || [];
 
-    let added = 0;
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].startsWith('#EXTINF')) {
-        const name = lines[i].split(',').pop().trim();
-        const streamUrl = lines[i + 1]?.trim();
-        if (streamUrl && streamUrl.startsWith('http')) {
-          // Proxy HLS via Worker
-          const proxyUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
-          addChannelButton(name, proxyUrl);
-          added++;
-        }
-      }
-    }
-
-    if (added > 0) {
-      statusText.textContent = `✅ Página ${currentPage} (${added} canais)`;
+    if (channels.length) {
+      channels.forEach(ch => {
+        const proxyUrl = `${WORKER_URL}stream?url=${encodeURIComponent(ch.url)}`;
+        addChannelButton(ch.name, proxyUrl);
+      });
+      statusText.textContent = `✅ Página ${currentPage} (${channels.length} canais)`;
       showLoadMoreButton();
     } else {
       statusText.textContent = `🎬 Fim da lista.`;
