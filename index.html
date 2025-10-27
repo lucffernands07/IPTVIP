@@ -33,6 +33,26 @@
   <script>
     eruda.init();
     console.log("🪄 Eruda carregado! Para abrir: toque no canto inferior direito.");
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.ready.then(reg => {
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'get-sw-version' });
+    }
+
+    navigator.serviceWorker.addEventListener('message', event => {
+      if (event.data && event.data.type === 'sw-version') {
+        const versionDiv = document.createElement('div');
+        versionDiv.id = 'swVersion';
+        versionDiv.textContent = `SW: ${event.data.version}`;
+        document.body.appendChild(versionDiv);
+      }
+    });
+  });
+}
+</script>
+    
   </script>
 </body>
 </html>
