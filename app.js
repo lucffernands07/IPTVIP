@@ -127,19 +127,23 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-function showAppVersion(version) {
-  const badge = document.createElement('div');
-  badge.textContent = version;
-  badge.style.position = 'fixed';
-  badge.style.top = '8px';
-  badge.style.right = '10px';
-  badge.style.background = 'rgba(0,0,0,0.5)';
-  badge.style.color = '#fff';
-  badge.style.fontSize = '10px';
-  badge.style.padding = '3px 6px';
-  badge.style.borderRadius = '6px';
-  badge.style.zIndex = '9999';
-  badge.style.fontFamily = 'monospace';
-  badge.style.opacity = '0.8';
-  document.body.appendChild(badge);
+// ============================
+// 🔹 Mostrar versão do Service Worker no canto superior direito
+// ============================
+if ('serviceWorker' in navigator) {
+  // Garante que o SW está ativo
+  navigator.serviceWorker.ready.then(() => {
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'get-sw-version' });
+    }
+
+    navigator.serviceWorker.addEventListener('message', event => {
+      if (event.data && event.data.type === 'sw-version') {
+        const versionDiv = document.createElement('div');
+        versionDiv.id = 'swVersion';
+        versionDiv.textContent = `SW: ${event.data.version}`;
+        document.body.appendChild(versionDiv);
+      }
+    });
+  });
 }
