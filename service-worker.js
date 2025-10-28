@@ -2,7 +2,7 @@
 // 🔸 IPTV Player Service Worker
 // ============================
 
-const APP_VERSION = 'v1.5.7'; // 🔁 Atualize conforme necessário
+const APP_VERSION = 'v1.5.8'; // 🔁 Atualize conforme necessário
 const cacheName = `iptvip-cache-${APP_VERSION}`;
 
 const assetsToCache = [
