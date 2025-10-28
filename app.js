@@ -13,12 +13,28 @@ let currentPage = 1;
 let currentM3U = '';
 let loadMoreBtn = null;
 let hls = null;
+let categories = new Set();
+let categoryFilter = null;
+
+// === Menu de categorias ===
+const categorySelect = document.createElement('select');
+categorySelect.style.margin = '10px 0';
+categorySelect.innerHTML = '<option value="">Todas as categorias</option>';
+categorySelect.onchange = () => {
+  categoryFilter = categorySelect.value || null;
+  list.innerHTML = '';
+  currentPage = 1;
+  loadM3UPage();
+};
+document.body.insertBefore(categorySelect, list);
 
 // === Carregar lista ===
 button.addEventListener('click', () => {
   currentM3U = input.value.trim();
   if (!currentM3U) return alert("Cole o link M3U completo!");
   list.innerHTML = '';
+  categories.clear();
+  categorySelect.innerHTML = '<option value="">Todas as categorias</option>';
   currentPage = 1;
   loadM3UPage();
 });
@@ -38,12 +54,28 @@ async function loadM3UPage() {
     let added = 0;
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].startsWith('#EXTINF')) {
-        const name = lines[i].split(',').pop().trim();
+        const info = lines[i];
+        const name = info.split(',').pop().trim();
+        const groupMatch = info.match(/group-title="([^"]+)"/i);
+        const category = groupMatch ? groupMatch[1] : "Sem categoria";
         const streamUrl = lines[i + 1]?.trim();
+
         if (streamUrl && streamUrl.startsWith('http')) {
-          const proxyUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
-          addChannelButton(name, proxyUrl);
-          added++;
+          // adiciona categoria na lista se nova
+          if (!categories.has(category)) {
+            categories.add(category);
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categorySelect.appendChild(option);
+          }
+
+          // aplica filtro se houver
+          if (!categoryFilter || categoryFilter === category) {
+            const proxyUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
+            addChannelButton(name, proxyUrl);
+            added++;
+          }
         }
       }
     }
@@ -74,7 +106,6 @@ function addChannelButton(name, url) {
 
 // === Reproduzir canal ===
 function playChannel(url) {
-  // Fecha player anterior
   if (hls) {
     hls.destroy();
     hls = null;
@@ -114,7 +145,7 @@ function hideLoadMoreButton() {
   if (loadMoreBtn) loadMoreBtn.style.display = 'none';
 }
 
-// === Registro do Service Worker ===
+// === SW e versão ===
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./service-worker.js')
     .then(() => console.log('✅ Service Worker registrado com sucesso'))
@@ -122,18 +153,12 @@ if ('serviceWorker' in navigator) {
 }
 
 window.onload = () => {
-  // Mostra versão do app no canto superior direito
   navigator.serviceWorker.ready.then(registration => {
     if (registration.active) {
-      // Pede a versão ao Service Worker
       registration.active.postMessage({ type: 'GET_VERSION' });
-
-      // Escuta a resposta com a versão
       navigator.serviceWorker.addEventListener('message', event => {
         if (event.data && event.data.type === 'VERSION_INFO') {
           const versionText = `Versão ${event.data.version}`;
-
-          // Cria o elemento visual discreto
           const versionEl = document.createElement('div');
           versionEl.id = 'app-version';
           versionEl.textContent = versionText;
