@@ -114,6 +114,13 @@ function hideLoadMoreButton() {
   if (loadMoreBtn) loadMoreBtn.style.display = 'none';
 }
 
+// === Registro do Service Worker ===
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(() => console.log('✅ Service Worker registrado com sucesso'))
+    .catch(err => console.error('❌ Falha ao registrar o Service Worker:', err));
+}
+
 window.onload = () => {
   // === Mostra versão do app no canto superior direito ===
   navigator.serviceWorker.ready.then(registration => {
