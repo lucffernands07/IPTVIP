@@ -1,84 +1,60 @@
 // === Elementos principais ===
-const input = document.getElementById('m3uUrl');
+const input = document.getElementById('m3uUrl'); // ainda pode colar M3U se quiser
 const button = document.getElementById('loadBtn');
 const list = document.getElementById('channelList');
 const player = document.getElementById('videoPlayer');
 const statusText = document.createElement('p');
 document.body.insertBefore(statusText, list);
 
+// Novo select de categorias
+let categorySelect = document.getElementById('categorySelect');
+if (!categorySelect) {
+  categorySelect = document.createElement('select');
+  categorySelect.id = 'categorySelect';
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = 'Todas as categorias';
+  categorySelect.appendChild(defaultOption);
+  document.body.insertBefore(categorySelect, list);
+}
+
 const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/";
 const limit = 100;
 
 let currentPage = 1;
-let currentM3U = '';
+let currentCategory = '';
+let channelsData = [];
 let loadMoreBtn = null;
 let hls = null;
-let categories = new Set();
-let categoryFilter = null;
-
-// === Menu de categorias ===
-const categorySelect = document.createElement('select');
-categorySelect.style.margin = '10px 0';
-categorySelect.innerHTML = '<option value="">Todas as categorias</option>';
-categorySelect.onchange = () => {
-  categoryFilter = categorySelect.value || null;
-  list.innerHTML = '';
-  currentPage = 1;
-  loadM3UPage();
-};
-document.body.insertBefore(categorySelect, list);
 
 // === Carregar lista ===
 button.addEventListener('click', () => {
-  currentM3U = input.value.trim();
-  if (!currentM3U) return alert("Cole o link M3U completo!");
+  currentCategory = categorySelect.value;
   list.innerHTML = '';
-  categories.clear();
-  categorySelect.innerHTML = '<option value="">Todas as categorias</option>';
   currentPage = 1;
-  loadM3UPage();
+  loadChannelsPage();
 });
 
-// === Função para carregar lista paginada ===
-async function loadM3UPage() {
+// === Função para carregar canais por categoria (paginado) ===
+async function loadChannelsPage() {
   statusText.textContent = `⏳ Carregando canais...`;
-  const url = `${WORKER_URL}?url=${encodeURIComponent(currentM3U)}&page=${currentPage}&limit=${limit}`;
+  const url = `${WORKER_URL}?category=${encodeURIComponent(currentCategory)}&page=${currentPage}&limit=${limit}`;
 
   try {
     const res = await fetch(url);
-    if (!res.ok) throw new Error('Erro ao buscar lista M3U');
+    if (!res.ok) throw new Error('Erro ao buscar canais');
 
-    const text = await res.text();
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+    const json = await res.json();
+    const lines = json.channels || [];
 
     let added = 0;
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].startsWith('#EXTINF')) {
-        const info = lines[i];
-        const name = info.split(',').pop().trim();
-        const groupMatch = info.match(/group-title="([^"]+)"/i);
-        const category = groupMatch ? groupMatch[1] : "Sem categoria";
-        const streamUrl = lines[i + 1]?.trim();
-
-        if (streamUrl && streamUrl.startsWith('http')) {
-          // adiciona categoria na lista se nova
-          if (!categories.has(category)) {
-            categories.add(category);
-            const option = document.createElement('option');
-            option.value = category;
-            option.textContent = category;
-            categorySelect.appendChild(option);
-          }
-
-          // aplica filtro se houver
-          if (!categoryFilter || categoryFilter === category) {
-            const proxyUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
-            addChannelButton(name, proxyUrl);
-            added++;
-          }
-        }
+    lines.forEach(chan => {
+      if (chan.name && chan.url) {
+        const proxyUrl = `${WORKER_URL}stream?url=${encodeURIComponent(chan.url)}`;
+        addChannelButton(chan.name, proxyUrl);
+        added++;
       }
-    }
+    });
 
     if (added > 0) {
       statusText.textContent = `✅ Página ${currentPage} (${added} canais)`;
@@ -88,9 +64,12 @@ async function loadM3UPage() {
       hideLoadMoreButton();
     }
 
+    // Atualiza lista de categorias
+    updateCategoryOptions(json.categories || []);
+
   } catch (err) {
     console.error(err);
-    statusText.textContent = "❌ Erro ao carregar lista";
+    statusText.textContent = "❌ Erro ao carregar canais";
   }
 }
 
@@ -106,10 +85,7 @@ function addChannelButton(name, url) {
 
 // === Reproduzir canal ===
 function playChannel(url) {
-  if (hls) {
-    hls.destroy();
-    hls = null;
-  }
+  if (hls) { hls.destroy(); hls = null; }
 
   if (Hls.isSupported()) {
     hls = new Hls();
@@ -134,7 +110,7 @@ function showLoadMoreButton() {
     loadMoreBtn.style.margin = '10px 0';
     loadMoreBtn.onclick = () => {
       currentPage++;
-      loadM3UPage();
+      loadChannelsPage();
     };
     document.body.appendChild(loadMoreBtn);
   }
@@ -145,13 +121,27 @@ function hideLoadMoreButton() {
   if (loadMoreBtn) loadMoreBtn.style.display = 'none';
 }
 
-// === SW e versão ===
+// === Atualiza opções do select de categorias ===
+function updateCategoryOptions(categories) {
+  const existing = Array.from(categorySelect.options).map(o => o.value);
+  categories.forEach(cat => {
+    if (!existing.includes(cat)) {
+      const option = document.createElement('option');
+      option.value = cat;
+      option.textContent = cat;
+      categorySelect.appendChild(option);
+    }
+  });
+}
+
+// === Registro do Service Worker ===
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./service-worker.js')
     .then(() => console.log('✅ Service Worker registrado com sucesso'))
     .catch(err => console.error('❌ Falha ao registrar o Service Worker:', err));
 }
 
+// === Versão do app ===
 window.onload = () => {
   navigator.serviceWorker.ready.then(registration => {
     if (registration.active) {
