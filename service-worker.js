@@ -2,7 +2,7 @@
 // 🔸 IPTV Player Service Worker
 // ============================
 
-const APP_VERSION = 'v1.6.2';
+const APP_VERSION = 'v1.5.0'; // 🔁 Atualize conforme necessário
 const cacheName = `iptvip-cache-${APP_VERSION}`;
 
 const assetsToCache = [
@@ -31,15 +31,14 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch com cache dinâmico para assets e páginas de canais
+// Busca com cache dinâmico
 self.addEventListener('fetch', event => {
   const reqUrl = event.request.url;
 
-  // Se for do seu Worker (lista IPTV)
+  // Se for do seu Worker IPTV
   if (reqUrl.includes('iptvip-proxy.lucianoffernands.workers.dev')) {
     event.respondWith(cacheFirstThenNetwork(event.request));
   } else {
-    // Padrão: cache estático
     event.respondWith(
       caches.match(event.request).then(cached => cached || fetch(event.request))
     );
@@ -47,10 +46,26 @@ self.addEventListener('fetch', event => {
 });
 
 // ============================
+// 🔹 Comunicação com o front
+// ============================
+
+// Envia a versão atual quando solicitada
+self.addEventListener('message', event => {
+  if (!event.data) return;
+
+  if (event.data.type === 'GET_VERSION') {
+    event.source.postMessage({ type: 'VERSION_INFO', version: APP_VERSION });
+  }
+
+  if (event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+// ============================
 // 🔹 Funções auxiliares
 // ============================
 
-// Cache primeiro, mas atualiza em background
 async function cacheFirstThenNetwork(request) {
   const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
@@ -59,16 +74,4 @@ async function cacheFirstThenNetwork(request) {
     return networkResponse;
   }).catch(() => cachedResponse);
   return cachedResponse || fetchPromise;
-}
-
-// ============================
-// 🔸 Comunicação com o Front-end (mostrar versão)
-// ============================
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'get-sw-version') {
-    event.source.postMessage({
-      type: 'sw-version',
-      version: APP_VERSION
-    });
-  }
-});
+    }
