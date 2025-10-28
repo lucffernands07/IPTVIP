@@ -114,36 +114,42 @@ function hideLoadMoreButton() {
   if (loadMoreBtn) loadMoreBtn.style.display = 'none';
 }
 
-// === Mostrar versão no canto superior direito ===
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.ready.then((registration) => {
-    registration.active.postMessage("getVersion");
+window.onload = () => {
+  // === Mostra versão do app no canto superior direito ===
+  navigator.serviceWorker.ready.then(registration => {
+    if (registration.active) {
+      // Pede a versão ao Service Worker
+      registration.active.postMessage({ type: 'GET_VERSION' });
 
-    navigator.serviceWorker.addEventListener("message", (event) => {
-      if (event.data?.type === "version") {
-        showAppVersion(event.data.version);
-      }
-    });
-  });
-}
+      // Escuta a resposta com a versão
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'VERSION_INFO') {
+          const versionText = `Versão ${event.data.version}`;
 
-// ============================
-// 🔹 Mostrar versão do Service Worker no canto superior direito
-// ============================
-if ('serviceWorker' in navigator) {
-  // Garante que o SW está ativo
-  navigator.serviceWorker.ready.then(() => {
-    if (navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({ type: 'get-sw-version' });
+          // Cria o elemento visual discreto
+          const versionEl = document.createElement('div');
+          versionEl.id = 'app-version';
+          versionEl.textContent = versionText;
+          document.body.appendChild(versionEl);
+        }
+      });
     }
-
-    navigator.serviceWorker.addEventListener('message', event => {
-      if (event.data && event.data.type === 'sw-version') {
-        const versionDiv = document.createElement('div');
-        versionDiv.id = 'swVersion';
-        versionDiv.textContent = `SW: ${event.data.version}`;
-        document.body.appendChild(versionDiv);
-      }
-    });
   });
-}
+
+  // === CSS dinâmico da versão ===
+  const style = document.createElement('style');
+  style.textContent = `
+    #app-version {
+      position: fixed;
+      top: 6px;
+      right: 10px;
+      font-size: 11px;
+      color: #ccc;
+      opacity: 0.6;
+      font-family: monospace;
+      z-index: 9999;
+      user-select: none;
+    }
+  `;
+  document.head.appendChild(style);
+};
