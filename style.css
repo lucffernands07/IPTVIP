@@ -1,5 +1,6 @@
 /* ===== IPTVIP Player - style.css ===== */
 html, body {
+html, body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -8,11 +9,13 @@ html, body {
 body {
   font-family: Arial, sans-serif;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: linear-gradient(to bottom, #111 0%, #001f3f 100%);
   color: #eee;
   padding: 15px;
   text-align: center;
-}
+  }
 
 input,
 button {
