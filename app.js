@@ -1,39 +1,57 @@
 // === Elementos principais ===
-const input = document.getElementById('m3uUrl');
-const button = document.getElementById('loadBtn');
+const loginBtn = document.getElementById('loginBtn');
+const listNameInput = document.getElementById('listName');
+const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
+const serverUrlInput = document.getElementById('serverUrl');
+
+const menu = document.getElementById('menu');
+const categoryBtns = document.querySelectorAll('.categoryBtn');
+
 const list = document.getElementById('channelList');
 const player = document.getElementById('videoPlayer');
-const categoryInput = document.getElementById('category'); // NOVO: campo de categoria
 const statusText = document.createElement('p');
 document.body.insertBefore(statusText, list);
 
 const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/";
-const limit = 100;
-
-let currentPage = 1;
 let currentM3U = '';
 let currentCategory = '';
-let loadMoreBtn = null;
 let hls = null;
 
-// === Carregar lista ===
-button.addEventListener('click', () => {
-  currentM3U = input.value.trim();
-  currentCategory = categoryInput.value.trim().toUpperCase(); // PEGANDO CATEGORIA
-  if (!currentM3U) return alert("Cole o link M3U completo!");
-  list.innerHTML = '';
-  currentPage = 1;
-  loadM3UPage();
+// === Login (gerar M3U) ===
+loginBtn.addEventListener('click', async () => {
+  const listName = listNameInput.value.trim();
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value.trim();
+  const serverUrl = serverUrlInput.value.trim();
+
+  if (!username || !password || !serverUrl) return alert("Preencha todos os campos!");
+
+  // Monta URL XTREAM Codes M3U
+  currentM3U = `${serverUrl}/get.php?username=${username}&password=${password}&type=m3u_plus&output=m3u8`;
+
+  // Mostra menu
+  menu.style.display = 'block';
+  statusText.textContent = "✅ Login bem-sucedido. Escolha uma categoria.";
 });
 
-// === Função para carregar lista paginada ===
-async function loadM3UPage() {
-  statusText.textContent = `⏳ Carregando canais...`;
-  
-  let url = `${WORKER_URL}?url=${encodeURIComponent(currentM3U)}&page=${currentPage}&limit=${limit}`;
-  if (currentCategory) url += `&category=${encodeURIComponent(currentCategory)}`; // ENVIA CATEGORIA
+// === Menu de categorias ===
+categoryBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentCategory = btn.dataset.cat.toUpperCase();
+    list.innerHTML = '';
+    loadM3U();
+  });
+});
+
+// === Função para carregar M3U filtrada por categoria ===
+async function loadM3U() {
+  statusText.textContent = "⏳ Carregando canais...";
 
   try {
+    let url = `${WORKER_URL}?url=${encodeURIComponent(currentM3U)}`;
+    if (currentCategory) url += `&category=${encodeURIComponent(currentCategory)}`;
+
     const res = await fetch(url);
     if (!res.ok) throw new Error('Erro ao buscar lista M3U');
 
@@ -53,13 +71,7 @@ async function loadM3UPage() {
       }
     }
 
-    if (added > 0) {
-      statusText.textContent = `✅ Página ${currentPage} (${added} canais)`;
-      showLoadMoreButton();
-    } else {
-      statusText.textContent = "🎬 Fim da lista.";
-      hideLoadMoreButton();
-    }
+    statusText.textContent = added > 0 ? `✅ ${added} canais carregados.` : "🎬 Nenhum canal encontrado.";
 
   } catch (err) {
     console.error(err);
@@ -97,48 +109,4 @@ function playChannel(url) {
   } else {
     alert("Seu navegador não suporta M3U8.");
   }
-}
-
-// === Paginação ===
-function showLoadMoreButton() {
-  if (!loadMoreBtn) {
-    loadMoreBtn = document.createElement('button');
-    loadMoreBtn.textContent = "⬇️ Carregar mais canais";
-    loadMoreBtn.style.margin = '10px 0';
-    loadMoreBtn.onclick = () => {
-      currentPage++;
-      loadM3UPage();
-    };
-    document.body.appendChild(loadMoreBtn);
-  }
-  loadMoreBtn.style.display = 'block';
-}
-
-function hideLoadMoreButton() {
-  if (loadMoreBtn) loadMoreBtn.style.display = 'none';
-}
-
-// === Registro do Service Worker ===
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./service-worker.js')
-    .then(() => console.log('✅ Service Worker registrado com sucesso'))
-    .catch(err => console.error('❌ Falha ao registrar o Service Worker:', err));
-}
-
-window.onload = () => {
-  // Mostra versão do app no canto superior direito
-  navigator.serviceWorker.ready.then(registration => {
-    if (registration.active) {
-      registration.active.postMessage({ type: 'GET_VERSION' });
-      navigator.serviceWorker.addEventListener('message', event => {
-        if (event.data && event.data.type === 'VERSION_INFO') {
-          const versionText = `Versão ${event.data.version}`;
-          const versionEl = document.createElement('div');
-          versionEl.id = 'app-version';
-          versionEl.textContent = versionText;
-          document.body.appendChild(versionEl);
         }
-      });
-    }
-  });
-};
