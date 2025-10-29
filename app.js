@@ -1,59 +1,34 @@
 // === Elementos principais ===
-const loginBtn = document.getElementById('loginBtn');
-const listNameInput = document.getElementById('listName');
-const usernameInput = document.getElementById('username');
-const passwordInput = document.getElementById('password');
-const serverUrlInput = document.getElementById('serverUrl');
-
-const menu = document.getElementById('menu');
-const categoryBtns = document.querySelectorAll('.categoryBtn');
-
+const form = document.getElementById('loginForm'); // formulário de login
 const list = document.getElementById('channelList');
 const player = document.getElementById('videoPlayer');
 const statusText = document.createElement('p');
 document.body.insertBefore(statusText, list);
 
 const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/";
-let currentM3U = '';
-let currentCategory = '';
+
 let hls = null;
 
-// === Login (gerar M3U) ===
-loginBtn.addEventListener('click', async () => {
-  const listName = listNameInput.value.trim();
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value.trim();
-  const serverUrl = serverUrlInput.value.trim();
+// === Evento de login ===
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = form.username.value.trim();
+  const password = form.password.value.trim();
+  const listName = form.listname.value.trim();
+  const url = form.url.value.trim();
 
-  if (!username || !password || !serverUrl) return alert("Preencha todos os campos!");
+  if (!username || !password || !listName || !url) {
+    alert("Preencha todos os campos!");
+    return;
+  }
 
-  // Monta URL XTREAM Codes M3U
-  currentM3U = `${serverUrl}/get.php?username=${username}&password=${password}&type=m3u_plus&output=m3u8`;
-
-  // Mostra menu
-  menu.style.display = 'block';
-  statusText.textContent = "✅ Login bem-sucedido. Escolha uma categoria.";
-});
-
-// === Menu de categorias ===
-categoryBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    currentCategory = btn.dataset.cat.toUpperCase();
-    list.innerHTML = '';
-    loadM3U();
-  });
-});
-
-// === Função para carregar M3U filtrada por categoria ===
-async function loadM3U() {
-  statusText.textContent = "⏳ Carregando canais...";
+  list.innerHTML = '';
+  statusText.textContent = `⏳ Carregando canais...`;
 
   try {
-    let url = `${WORKER_URL}?url=${encodeURIComponent(currentM3U)}`;
-    if (currentCategory) url += `&category=${encodeURIComponent(currentCategory)}`;
-
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Erro ao buscar lista M3U');
+    // Chama o Worker passando os dados do login
+    const res = await fetch(`${WORKER_URL}?url=${encodeURIComponent(url)}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+    if (!res.ok) throw new Error('Erro ao buscar lista');
 
     const text = await res.text();
     const lines = text.split('\n').map(l => l.trim()).filter(l => l);
@@ -71,20 +46,19 @@ async function loadM3U() {
       }
     }
 
-    statusText.textContent = added > 0 ? `✅ ${added} canais carregados.` : "🎬 Nenhum canal encontrado.";
+    statusText.textContent = added > 0 ? `✅ ${added} canais carregados` : "🎬 Nenhum canal encontrado";
 
   } catch (err) {
     console.error(err);
     statusText.textContent = "❌ Erro ao carregar lista";
   }
-}
+});
 
 // === Criar botões de canais ===
 function addChannelButton(name, url) {
   const btn = document.createElement('button');
   btn.textContent = name;
-  btn.style.display = 'block';
-  btn.style.margin = '5px 0';
+  btn.className = "channel-btn"; // usa CSS do style.css
   btn.onclick = () => playChannel(url);
   list.appendChild(btn);
 }
@@ -109,4 +83,29 @@ function playChannel(url) {
   } else {
     alert("Seu navegador não suporta M3U8.");
   }
+}
+
+// === Registro do Service Worker ===
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js')
+    .then(() => console.log('✅ Service Worker registrado com sucesso'))
+    .catch(err => console.error('❌ Falha ao registrar o Service Worker:', err));
+}
+
+// === Mostra versão do app no front ===
+window.onload = () => {
+  navigator.serviceWorker.ready.then(registration => {
+    if (registration.active) {
+      registration.active.postMessage({ type: 'GET_VERSION' });
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'VERSION_INFO') {
+          const versionText = `Versão ${event.data.version}`;
+          const versionEl = document.createElement('div');
+          versionEl.id = 'app-version';
+          versionEl.textContent = versionText;
+          document.body.appendChild(versionEl);
         }
+      });
+    }
+  });
+};
