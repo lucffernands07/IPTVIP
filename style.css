@@ -18,6 +18,10 @@ body {
 
 #loginForm {
   max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 input,
 button {
@@ -57,9 +61,7 @@ button:hover {
   max-width: 600px;
   max-height: 100vh;
   background: #000;
-  margin: 0 auto; /* centraliza horizontalmente */
   border-radius: 10px;
-  display: block;
 }
 
 /* Estilo do elemento de versão */
