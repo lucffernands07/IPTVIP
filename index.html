@@ -4,24 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IPTVIP Player</title>
-
-  <!-- CSS separado -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h2>📺 IPTVIP Player</h2>
 
-  <!-- Campo M3U -->
-  <input id="m3uUrl" type="text" placeholder="Cole seu link M3U aqui"/>
+  <!-- Formulário estilo XTREAM Codes -->
+  <div id="loginForm">
+    <input type="text" id="listName" placeholder="Nome da lista"/>
+    <input type="text" id="username" placeholder="Usuário"/>
+    <input type="password" id="password" placeholder="Senha"/>
+    <input type="text" id="serverUrl" placeholder="URL do servidor"/>
+    <button id="loginBtn">Login</button>
+  </div>
 
-  <!-- Campo Categoria (opcional) -->
-  <input id="category" type="text" placeholder="Categoria (opcional)" style="margin-top:5px;"/>
-
-  <!-- Botão carregar -->
-  <button id="loadBtn">Carregar Lista</button>
+  <!-- Menu de categorias -->
+  <div id="menu" style="display:none; margin-top:10px;">
+    <button class="categoryBtn" data-cat="LIVE">TV Ao Vivo</button>
+    <button class="categoryBtn" data-cat="SERIES">Séries</button>
+    <button class="categoryBtn" data-cat="FILMES">Filmes</button>
+  </div>
 
   <!-- Lista de canais -->
-  <div id="channelList" style="margin-top:10px"></div>
+  <div id="channelList" style="margin-top:10px;"></div>
 
   <!-- Player de vídeo -->
   <video id="videoPlayer" controls autoplay
@@ -29,8 +34,6 @@
 
   <!-- Biblioteca HLS -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
-  <!-- App principal -->
   <script src="app.js"></script>
 
   <!-- Eruda: console de debug para celular -->
