@@ -51,9 +51,11 @@ button:hover {
 }
 
 #videoPlayer {
-  width: 60%;
+  width: 80%;
+  max-width: 500px;
   max-height: 70vh;
   background: #000;
+  margin: 15px auto 0 auto; /* centraliza horizontalmente */
   border-radius: 10px;
   display: block;
 }
