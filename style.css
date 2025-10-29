@@ -16,6 +16,9 @@ body {
   text-align: center;
   }
 
+#loginForm {
+  max-width: 600px;
+
 input,
 button {
   font-size: 1rem;
@@ -51,7 +54,7 @@ button:hover {
 }
 
 #videoPlayer {
-  width: 85%;
+  max-width: 600px;
   max-height: 100vh;
   background: #000;
   margin: 0 auto; /* centraliza horizontalmente */
