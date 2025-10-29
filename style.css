@@ -51,8 +51,7 @@ button:hover {
 }
 
 #videoPlayer {
-  width: 80%;
-  max-width: 500px;
+  width: 90%;
   max-height: 70vh;
   background: #000;
   margin: 0 auto; /* centraliza horizontalmente */
