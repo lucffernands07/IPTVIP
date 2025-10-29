@@ -12,6 +12,7 @@ let hls = null;
 // === Evento de login ===
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
+
   const username = form.username.value.trim();
   const password = form.password.value.trim();
   const listName = form.listname.value.trim();
@@ -22,12 +23,17 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
+  console.log("Campos preenchidos:", { username, password, listName, url });
+
   list.innerHTML = '';
   statusText.textContent = `⏳ Carregando canais...`;
 
   try {
-    // Chama o Worker passando os dados do login
-    const res = await fetch(`${WORKER_URL}?url=${encodeURIComponent(url)}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+    // Monta o link completo para o Worker
+    const fetchUrl = `${WORKER_URL}?url=${encodeURIComponent(url)}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&type=m3u_plus&output=m3u8`;
+    console.log("Fetch URL:", fetchUrl); // DEBUG
+
+    const res = await fetch(fetchUrl);
     if (!res.ok) throw new Error('Erro ao buscar lista');
 
     const text = await res.text();
