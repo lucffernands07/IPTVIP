@@ -1,6 +1,5 @@
 /* ===== IPTVIP Player - style.css ===== */
 html, body {
-html, body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -52,11 +51,13 @@ button:hover {
 }
 
 #videoPlayer {
-  width: 100%;
+  width: 80%;
+  max-width: 500px;
   max-height: 70vh;
   background: #000;
-  margin-top: 15px;
+  margin: 15px auto 0 auto; /* centraliza horizontalmente */
   border-radius: 10px;
+  display: block;
 }
 
 /* Estilo do elemento de versão */
