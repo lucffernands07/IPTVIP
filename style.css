@@ -51,8 +51,8 @@ button:hover {
 }
 
 #videoPlayer {
-  width: 90%;
-  max-height: 70vh;
+  width: 85%;
+  max-height: 100vh;
   background: #000;
   margin: 0 auto; /* centraliza horizontalmente */
   border-radius: 10px;
@@ -63,7 +63,7 @@ button:hover {
 #app-version {
   position: fixed;
   top: 6px;
-  right: 10px;
+  right:00000 10px;
   font-size: 11px;
   color: #ccc;
   opacity: 0.6;
