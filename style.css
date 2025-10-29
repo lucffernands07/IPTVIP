@@ -3,51 +3,65 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
+/* ===== Corpo principal ===== */
 body {
   font-family: Arial, sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  align-items: center;             /* centraliza horizontalmente */
   background: linear-gradient(to bottom, #111 0%, #001f3f 100%);
   color: #eee;
-  padding: 15px;
+  padding: 20px;
   text-align: center;
-  }
+}
 
+/* ===== Formulário de login ===== */
 #loginForm {
-  max-width: 600px;
+  width: 90%;                      /* margem lateral boa no mobile */
+  max-width: 600px;                /* limite no desktop */
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 0 auto;                  /* centraliza */
+  gap: 10px;                       /* espaçamento uniforme */
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35); /* leve contraste com fundo */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
+/* ===== Inputs e botões ===== */
 input,
 button {
   font-size: 1rem;
-  padding: 10px;
-  margin: 5px;
+  padding: 12px;
   border-radius: 8px;
   border: none;
+  width: 100%;                     /* ocupa toda a largura do form */
+  box-sizing: border-box;
 }
 
 input {
-  width: 80%;
-  max-width: 500px;
+  background: #222;
+  color: #fff;
 }
 
 button {
   background: #00bcd4;
   color: white;
   cursor: pointer;
-  transition: 0.2s;
+  transition: background 0.2s;
 }
 
 button:hover {
   background: #0097a7;
 }
 
+/* ===== Lista de canais ===== */
 #channelList {
   margin-top: 15px;
   display: flex;
@@ -55,24 +69,54 @@ button:hover {
   align-items: center;
   max-height: 50vh;
   overflow-y: auto;
+  width: 90%;
+  max-width: 600px;
 }
 
+/* ===== Player de vídeo ===== */
 #videoPlayer {
+  width: 90%;
   max-width: 600px;
-  max-height: 100vh;
+  max-height: 70vh;
   background: #000;
   border-radius: 10px;
+  margin: 20px auto 0 auto;        /* centraliza e adiciona espaçamento */
+  display: block;
 }
 
-/* Estilo do elemento de versão */
+/* ===== Responsividade ===== */
+@media (min-width: 768px) {
+  body {
+    padding: 40px;
+  }
+
+  #loginForm {
+    padding: 30px;
+    gap: 12px;
+  }
+
+  #videoPlayer {
+    max-width: 700px;
+  }
+}
+
+@media (min-width: 1200px) {
+  #loginForm,
+  #channelList,
+  #videoPlayer {
+    max-width: 800px;
+  }
+}
+
+/* ===== Versão do app ===== */
 #app-version {
   position: fixed;
   top: 6px;
-  right:00000 10px;
+  right: 10px;
   font-size: 11px;
   color: #ccc;
   opacity: 0.6;
   font-family: monospace;
   z-index: 9999;
   user-select: none;
-}
+  }
