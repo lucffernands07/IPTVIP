@@ -14,6 +14,7 @@ body {
   flex-direction: column;
   align-items: center;             /* centraliza horizontalmente */
   background: linear-gradient(to bottom, #111 0%, #001f3f 100%);
+  color: #eee;
   padding: 20px;
   text-align: center;
 }
