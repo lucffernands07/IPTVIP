@@ -13,8 +13,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;             /* centraliza horizontalmente */
-  background: linear-gradient(to bottom, #111 0%, #0000ff 80%);
-  color: #eee;
+  background: linear-gradient(to bottom, #111 0%, #001f3f 100%);
   padding: 20px;
   text-align: center;
 }
