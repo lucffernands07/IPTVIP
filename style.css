@@ -75,7 +75,7 @@ button:hover {
 
 /* ===== Player de vídeo ===== */
 #videoPlayer {
-  width: 100%;                     /* ocupa toda a largura do contêiner */
+  width: 90%;                     /* ocupa toda a largura do contêiner */
   max-width: 600px;                /* mesmo limite do formulário */
   aspect-ratio: 16 / 9;            /* mantém proporção de vídeo */
   background: #000;
