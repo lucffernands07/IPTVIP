@@ -29,36 +29,12 @@ form.addEventListener('submit', async (e) => {
   statusText.textContent = `⏳ Carregando canais...`;
 
   try {
-    // Monta o link completo para o Worker
-    const fetchUrl = `${WORKER_URL}?url=${encodeURIComponent(url)}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&type=m3u_plus&output=m3u8`;
-    console.log("Fetch URL:", fetchUrl); // DEBUG
+    // Monta o link completo da M3U direto dentro do parâmetro ?url=
+const fullUrl = `${url}/get.php?username=${username}&password=${password}&type=m3u_plus&output=m3u8`;
+const proxyUrl = `https://iptvip-proxy.lucianoffernands.workers.dev/?url=${encodeURIComponent(fullUrl)}`;
 
-    const res = await fetch(fetchUrl);
-    if (!res.ok) throw new Error('Erro ao buscar lista');
-
-    const text = await res.text();
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l);
-
-    let added = 0;
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].startsWith('#EXTINF')) {
-        const name = lines[i].split(',').pop().trim();
-        const streamUrl = lines[i + 1]?.trim();
-        if (streamUrl && streamUrl.startsWith('http')) {
-          const proxyUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
-          addChannelButton(name, proxyUrl);
-          added++;
-        }
-      }
-    }
-
-    statusText.textContent = added > 0 ? `✅ ${added} canais carregados` : "🎬 Nenhum canal encontrado";
-
-  } catch (err) {
-    console.error(err);
-    statusText.textContent = "❌ Erro ao carregar lista";
-  }
-});
+console.log("Fetch URL:", proxyUrl);
+const response = await fetch(proxyUrl);
 
 // === Criar botões de canais ===
 function addChannelButton(name, url) {
