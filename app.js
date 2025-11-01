@@ -194,7 +194,7 @@ function playChannel(url) {
   });
 }
 
-  } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
+  } else if (player.canPlayType('application/vnd.apple.mpegurl'))
     player.src = url;
     player.play();
   } else {
