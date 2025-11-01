@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IPTVIP Player</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h2>📺 IPTVIP Player</h2>
@@ -18,109 +18,30 @@
     <button type="submit">Entrar</button>
   </form>
 
-  <!-- Menu estilo tiles (inicialmente oculto; será mostrado após login) -->
+  <!-- Menu de categorias -->
   <div id="menu" style="display:none; margin-top:10px;">
-    <div class="tiles-row">
-      <button class="tile tile-large tile-live" data-tipo="tv" aria-label="TV ao vivo">
-        <div class="tile-icon">📺</div>
-        <div class="tile-title">LIVE TV</div>
-      </button>
-
-      <button class="tile tile-large tile-movies" data-tipo="filmes" aria-label="Filmes">
-        <div class="tile-icon">🎬</div>
-        <div class="tile-title">MOVIES</div>
-      </button>
-
-      <button class="tile tile-large tile-series" data-tipo="series" aria-label="Séries">
-        <div class="tile-icon">🎞️</div>
-        <div class="tile-title">SERIES</div>
-      </button>
-    </div>
-
-    <div class="tiles-row small-row">
-      <button class="tile tile-small tile-catchup" data-tipo="catchup" aria-label="Catch up">
-        <div class="tile-icon">⏪</div>
-        <div class="tile-title">CATCH UP</div>
-      </button>
-
-      <button id="menu-account" class="tile tile-small tile-account" aria-label="Account">
-        <div class="tile-icon">👤</div>
-        <div class="tile-title">ACCOUNT</div>
-      </button>
-
-      <button id="menu-settings" class="tile tile-small tile-settings" aria-label="Settings">
-        <div class="tile-icon">⚙️</div>
-        <div class="tile-title">SETTINGS</div>
-      </button>
-    </div>
-
-    <button id="menu-logout" class="back-btn" style="margin-top:16px;">🚪 Sair</button>
+    <button class="categoryBtn" data-cat="LIVE">TV Ao Vivo</button>
+    <button class="categoryBtn" data-cat="SERIES">Séries</button>
+    <button class="categoryBtn" data-cat="FILMES">Filmes</button>
   </div>
 
-  <!-- Lista de canais (sua área atual) -->
+  <!-- Lista de canais -->
   <div id="channelList" style="margin-top:10px;"></div>
 
-  <!-- Player de vídeo (inicialmente escondido) -->
+  <!-- Player de vídeo -->
   <video id="videoPlayer" controls style="display:none;"></video>
 
   <!-- Biblioteca HLS -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <!-- Script principal -->
   <script src="app.js"></script>
-
-  <!-- Script de integração do menu tiles (coloque após app.js) -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const menu = document.getElementById('menu');
-      const loginForm = document.getElementById('loginForm');
-      const channelList = document.getElementById('channelList');
-      const player = document.getElementById('videoPlayer');
-
-      // 1) Quando o seu app.js esconder o form (form.style.display = 'none'), mostramos o menu.
-      const observer = new MutationObserver(() => {
-        if (getComputedStyle(loginForm).display === 'none') {
-          menu.style.display = 'block';
-        }
-      });
-      observer.observe(loginForm, { attributes: true, attributeFilter: ['style', 'class'] });
-
-      // 2) Liga os tiles às suas funções (loadCategorias)
-      menu.querySelectorAll('.tile[data-tipo]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const tipo = btn.getAttribute('data-tipo');
-
-          // esconder menu visualmente e limpar lista
-          menu.style.display = 'none';
-          channelList.innerHTML = '';
-
-          // mostrar canalList (caso estivesse oculto)
-          channelList.style.display = 'block';
-
-          // chama sua função existente para carregar categorias (se existir)
-          if (typeof loadCategorias === 'function') {
-            loadCategorias(tipo);
-          } else {
-            console.warn('loadCategorias não encontrada — verifique app.js');
-          }
-        });
-      });
-
-      // 3) Logout / voltar ao login
-      const logoutBtn = document.getElementById('menu-logout');
-      logoutBtn.addEventListener('click', () => {
-        // mostra o form e limpa tudo
-        loginForm.style.display = 'block';
-        menu.style.display = 'none';
-        channelList.innerHTML = '';
-        if (typeof hls !== 'undefined' && hls) { try { hls.destroy(); } catch(e){} hls = null; }
-        player.pause();
-        player.style.display = 'none';
-        player.removeAttribute('src');
-      });
-    });
-  </script>
 
   <!-- Eruda: console de debug para celular -->
   <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-  <script>eruda.init(); console.log("🪄 Eruda carregado!");</script>
+  <script>
+    eruda.init();
+    console.log("🪄 Eruda carregado! Para abrir: toque no canto inferior direito.");
+  </script>
 </body>
-  </html>
+</html>
