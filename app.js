@@ -24,49 +24,25 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
-  loginData = { username, password, url };
+  // 🔒 Safe URL
+  let safeUrl = url.trim();
+  if (safeUrl.startsWith("http://")) safeUrl = safeUrl.replace("http://", "https://");
+  if (safeUrl.endsWith("/")) safeUrl = safeUrl.slice(0, -1);
+
+  loginData = { username, password, url: safeUrl };
 
   list.innerHTML = '';
   statusText.textContent = "🚀 Conectando ao servidor IPTV...";
 
   try {
-    // 🔒 Força HTTPS e remove barras extras
-    let safeUrl = url.trim();
-    if (safeUrl.startsWith("http://")) {
-      safeUrl = safeUrl.replace("http://", "https://");
-    }
-    if (safeUrl.endsWith("/")) {
-      safeUrl = safeUrl.slice(0, -1);
-    }
-
-    console.log("🌐 URL segura usada:", safeUrl);
-
-    // 🛰️ Monta a URL de requisição ao Worker
     const fetchUrl = `${WORKER_URL}?action=menu&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&url=${encodeURIComponent(safeUrl)}`;
+    const res = await fetch(fetchUrl, { method: "GET", headers: { "Content-Type": "application/json" }, mode: "cors" });
 
-    console.log("🚀 Solicitando menu em:", fetchUrl);
-
-    // 🧠 Tenta com CORS normal primeiro
-    let res;
-    try {
-      res = await fetch(fetchUrl, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        mode: "cors",
-      });
-    } catch (err) {
-      console.warn("⚠️ CORS falhou, tentando no-cors:", err);
-      res = await fetch(fetchUrl, { method: "GET", mode: "no-cors" });
-    }
-
-    if (!res || !res.ok) {
-      throw new Error(`Erro ao conectar ao servidor (status: ${res?.status || "sem resposta"})`);
-    }
+    if (!res.ok) throw new Error(`Erro ao conectar ao servidor (status: ${res.status})`);
 
     const data = await res.json();
-    console.log("✅ Menu recebido:", data);
 
-    // 🎨 Atualiza UI
+    // Esconde o formulário e mostra menu
     form.style.display = "none";
     statusText.textContent = "📺 Escolha uma opção";
     showMainMenu(data.menu);
@@ -75,7 +51,7 @@ form.addEventListener('submit', async (e) => {
     console.error("❌ Falha:", err);
     statusText.textContent = "❌ Falha ao conectar ao servidor IPTV";
   }
-}); // <-- ✅ fecha o listener aqui
+});
 
 // === MENU PRINCIPAL ===
 function showMainMenu(menuList) {
@@ -92,7 +68,6 @@ function showMainMenu(menuList) {
     list.appendChild(btn);
   });
 
-  // Botão sair (volta para login)
   const exitBtn = document.createElement('button');
   exitBtn.textContent = "🚪 Sair";
   exitBtn.className = "back-btn";
@@ -110,13 +85,13 @@ async function loadCategorias(tipo) {
   statusText.textContent = "📦 Carregando categorias...";
 
   const { username, password, url } = loginData;
-  const endpoint = `${WORKER_URL}?action=categorias&tipo=${tipo}&username=${username}&password=${password}&url=${encodeURIComponent(url)}`;
+  const endpoint = `${WORKER_URL}?action=categorias&tipo=${tipo}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&url=${encodeURIComponent(url)}`;
 
   try {
-    const res = await fetch(endpoint);
+    const res = await fetch(endpoint, { method: "GET", headers: { "Content-Type": "application/json" }, mode: "cors" });
     if (!res.ok) throw new Error("Erro ao buscar categorias");
-    const data = await res.json();
 
+    const data = await res.json();
     statusText.textContent = "📚 Escolha uma categoria";
     list.innerHTML = '';
 
@@ -146,13 +121,13 @@ async function loadCanais(tipo, categoria) {
   statusText.textContent = `📡 Carregando canais de ${categoria}...`;
 
   const { username, password, url } = loginData;
-  const endpoint = `${WORKER_URL}?action=canais&tipo=${tipo}&categoria=${encodeURIComponent(categoria)}&username=${username}&password=${password}&url=${encodeURIComponent(url)}`;
+  const endpoint = `${WORKER_URL}?action=canais&tipo=${tipo}&categoria=${encodeURIComponent(categoria)}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&url=${encodeURIComponent(url)}`;
 
   try {
-    const res = await fetch(endpoint);
+    const res = await fetch(endpoint, { method: "GET", headers: { "Content-Type": "application/json" }, mode: "cors" });
     if (!res.ok) throw new Error("Erro ao buscar canais");
-    const data = await res.json();
 
+    const data = await res.json();
     statusText.textContent = `✅ ${data.total} canais encontrados`;
     list.innerHTML = '';
 
@@ -210,25 +185,27 @@ function playChannel(url) {
   }
 }
 
-// === Registro do Service Worker ===
+// === Service Worker ===
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./service-worker.js')
-    .then(() => console.log('✅ Service Worker registrado com sucesso'))
+    .then(() => console.log('✅ Service Worker registrado'))
     .catch(err => console.error('❌ Falha ao registrar o Service Worker:', err));
 }
 
-// === Mostra versão do app no front ===
+// === Versão no front ===
 window.onload = () => {
   navigator.serviceWorker.ready.then(registration => {
     if (registration.active) {
       registration.active.postMessage({ type: 'GET_VERSION' });
       navigator.serviceWorker.addEventListener('message', event => {
         if (event.data && event.data.type === 'VERSION_INFO') {
-          const versionText = `Versão ${event.data.version}`;
-          const versionEl = document.createElement('div');
-          versionEl.id = 'app-version';
-          versionEl.textContent = versionText;
-          document.body.appendChild(versionEl);
+          let versionEl = document.getElementById('app-version');
+          if (!versionEl) {
+            versionEl = document.createElement('div');
+            versionEl.id = 'app-version';
+            document.body.appendChild(versionEl);
+          }
+          versionEl.textContent = `Versão ${event.data.version}`;
         }
       });
     }
