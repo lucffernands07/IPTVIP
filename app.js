@@ -168,21 +168,22 @@ function playChannel(url) {
     hls = null;
   }
 
-  player.style.display = "block";
+  player.style.display = "block"; // mostra o player só aqui
 
   if (Hls.isSupported()) {
-    hls = new Hls(); // usa a variável global
+    const hlsInstance = new Hls();
     const secureUrl = `${WORKER_URL}?action=proxy&target=${encodeURIComponent(url)}`;
-    hls.loadSource(secureUrl);
-    hls.attachMedia(player);
-
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+    hlsInstance.loadSource(secureUrl);
+    hlsInstance.attachMedia(player);
+    hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
       player.play().catch(() => {
         alert("Clique no player para iniciar o vídeo.");
       });
     });
+    hls = hlsInstance;
 
   } else if (player.canPlayType("application/vnd.apple.mpegurl")) {
+    // fallback para Safari/iOS
     player.src = `${WORKER_URL}?action=proxy&target=${encodeURIComponent(url)}`;
     player.addEventListener("loadedmetadata", () => {
       player.play().catch(() => {
@@ -194,7 +195,6 @@ function playChannel(url) {
     alert("Seu navegador não suporta M3U8.");
   }
 }
-
 
 // === Service Worker ===
 if ('serviceWorker' in navigator) {
