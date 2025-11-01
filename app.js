@@ -30,7 +30,8 @@ form.addEventListener('submit', async (e) => {
   statusText.textContent = "🚀 Conectando ao servidor IPTV...";
 
   try {
-    const res = await fetch(`${WORKER_URL}?action=menu&username=${username}&password=${password}&url=${url}`);
+    // Faz fetch do menu principal
+    const res = await fetch(`${WORKER_URL}?action=menu&username=${username}&password=${password}&url=${encodeURIComponent(url)}`);
     if (!res.ok) throw new Error("Erro ao conectar ao servidor");
     const data = await res.json();
 
@@ -58,7 +59,7 @@ function showMainMenu(menuList) {
     list.appendChild(btn);
   });
 
-  // Botão sair (volta pro login)
+  // Botão sair (volta para login)
   const exitBtn = document.createElement('button');
   exitBtn.textContent = "🚪 Sair";
   exitBtn.className = "back-btn";
@@ -76,10 +77,11 @@ async function loadCategorias(tipo) {
   statusText.textContent = "📦 Carregando categorias...";
 
   const { username, password, url } = loginData;
-  const endpoint = `${WORKER_URL}?action=categorias&tipo=${tipo}&username=${username}&password=${password}&url=${url}`;
+  const endpoint = `${WORKER_URL}?action=categorias&tipo=${tipo}&username=${username}&password=${password}&url=${encodeURIComponent(url)}`;
 
   try {
     const res = await fetch(endpoint);
+    if (!res.ok) throw new Error("Erro ao buscar categorias");
     const data = await res.json();
 
     statusText.textContent = "📚 Escolha uma categoria";
@@ -111,10 +113,11 @@ async function loadCanais(tipo, categoria) {
   statusText.textContent = `📡 Carregando canais de ${categoria}...`;
 
   const { username, password, url } = loginData;
-  const endpoint = `${WORKER_URL}?action=canais&tipo=${tipo}&categoria=${encodeURIComponent(categoria)}&username=${username}&password=${password}&url=${url}`;
+  const endpoint = `${WORKER_URL}?action=canais&tipo=${tipo}&categoria=${encodeURIComponent(categoria)}&username=${username}&password=${password}&url=${encodeURIComponent(url)}`;
 
   try {
     const res = await fetch(endpoint);
+    if (!res.ok) throw new Error("Erro ao buscar canais");
     const data = await res.json();
 
     statusText.textContent = `✅ ${data.total} canais encontrados`;
