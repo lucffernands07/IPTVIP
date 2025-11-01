@@ -241,13 +241,14 @@ button:hover {
 
 /* ====== PLAYER ====== */
 #videoPlayer {
-  display: none;
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  margin-top: 10px;
+  display: block; /* garante que ele ocupe linha inteira */
+  width: calc(100% - 20px); /* igual à channel-item */
+  margin: 10px; /* mesmo espaçamento lateral */
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  background: #000;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
 }
 
 /* ====== STATUS TEXT ====== */
