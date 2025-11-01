@@ -27,37 +27,49 @@ form.addEventListener('submit', async (e) => {
   statusText.textContent = `⏳ Carregando canais...`;
 
   try {
-    // Monta o link completo com os parâmetros corretos
-    const fullUrl = `${url}/get.php?username=${username}&password=${password}&type=m3u_plus&output=m3u8`;
-    const proxyUrl = `${WORKER_URL}?url=${encodeURIComponent(fullUrl)}`;
+  // Monta o link completo
+  const fullUrl = `${url}/get.php?username=${username}&password=${password}&type=m3u_plus&output=m3u8`;
+  const proxyUrl = `${WORKER_URL}?url=${encodeURIComponent(fullUrl)}`;
 
-    console.log("Fetch URL:", proxyUrl);
+  console.log("🛰️ URL final enviada ao Worker:", proxyUrl);
+  statusText.textContent = "🚀 Conectando ao servidor IPTV...";
 
-    const res = await fetch(proxyUrl);
-    if (!res.ok) throw new Error('Erro ao buscar lista');
+  const res = await fetch(proxyUrl);
 
-    const text = await res.text();
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  console.log("📡 Resposta do Worker:", res.status, res.statusText);
 
-    let added = 0;
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].startsWith('#EXTINF')) {
-        const name = lines[i].split(',').pop().trim();
-        const streamUrl = lines[i + 1]?.trim();
-        if (streamUrl && streamUrl.startsWith('http')) {
-          const proxyStreamUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
-          addChannelButton(name, proxyStreamUrl);
-          added++;
-        }
+  if (!res.ok) {
+    throw new Error(`Erro ao buscar lista: ${res.status} ${res.statusText}`);
+  }
+
+  const text = await res.text();
+  console.log("📦 Tamanho do retorno:", text.length);
+
+  if (!text || text.length < 100) {
+    throw new Error("Resposta vazia ou inválida da M3U");
+  }
+
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+
+  let added = 0;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].startsWith('#EXTINF')) {
+      const name = lines[i].split(',').pop().trim();
+      const streamUrl = lines[i + 1]?.trim();
+      if (streamUrl && streamUrl.startsWith('http')) {
+        const proxyStreamUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
+        addChannelButton(name, proxyStreamUrl);
+        added++;
       }
     }
-
-    statusText.textContent = added > 0 ? `✅ ${added} canais carregados` : "🎬 Nenhum canal encontrado";
-
-  } catch (err) {
-    console.error(err);
-    statusText.textContent = "❌ Erro ao carregar lista";
   }
+
+  statusText.textContent = added > 0 ? `✅ ${added} canais carregados` : "🎬 Nenhum canal encontrado";
+
+} catch (err) {
+  console.error("🚨 Erro interno:", err);
+  statusText.textContent = "❌ Falha ao buscar lista de canais";
+}
 });
 
 // === Criar botões de canais ===
