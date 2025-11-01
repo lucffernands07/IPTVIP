@@ -27,19 +27,15 @@ form.addEventListener('submit', async (e) => {
   statusText.textContent = `⏳ Carregando canais...`;
 
   try {
-    // Força HTTPS para funcionar com o Worker
-    const safeUrl = url.replace(/^http:\/\//, "https://");
-    const fullUrl = `${safeUrl}/get.php?username=${username}&password=${password}&type=m3u_plus&output=m3u8`;
-    
-    // Monta a URL final totalmente codificada
-    const proxyUrl = `https://iptvip-proxy.lucianoffernands.workers.dev/?url=${encodeURIComponent(fullUrl)}`;
-    
-    console.log("🛰️ URL final enviada ao Worker:", proxyUrl);
-    
-    const res = await fetch(proxyUrl);
-    
-    console.log("🛰️ URL final enviada ao Worker:", proxyUrl);
-    statusText.textContent = "🚀 Conectando ao servidor IPTV...";
+  // Força HTTPS para funcionar com o Worker
+  const safeUrl = url.replace(/^http:\/\//, "https://");
+  const fullUrl = `${safeUrl}/get.php?username=${username}&password=${password}&type=m3u_plus&output=m3u8`;
+  
+  // Monta a URL final totalmente codificada
+  const proxyUrl = `https://iptvip-proxy.lucianoffernands.workers.dev/?url=${encodeURIComponent(fullUrl)}`;
+
+  console.log("🛰️ URL final enviada ao Worker:", proxyUrl);
+  statusText.textContent = "🚀 Conectando ao servidor IPTV...";
 
   // --- Timeout de segurança (10 segundos) ---
   const controller = new AbortController();
