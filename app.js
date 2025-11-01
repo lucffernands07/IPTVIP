@@ -74,7 +74,7 @@ form.addEventListener('submit', async (e) => {
 } catch (err) {
   console.error("❌ Falha:", err);
   statusText.textContent = "❌ Falha ao conectar ao servidor IPTV";
-  }
+}
 
 // === MENU PRINCIPAL ===
 function showMainMenu(menuList) {
