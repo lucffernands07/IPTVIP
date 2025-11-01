@@ -67,32 +67,6 @@ button:hover {
   background: #0097a7;
 }
 
-/*
- ===== Lista de canais ===== 
-#channelList {
-  margin-top: 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-height: 50vh;
-  overflow-y: auto;
-  width: 90%;
-  max-width: 600px;
-}
-
- ===== Player de vídeo ===== 
-#videoPlayer {
-  width: 85%;                      ocupa toda a largura do contêiner 
-  max-width: 600px;                 mesmo limite do formulário 
-  aspect-ratio: 16 / 9;             mantém proporção de vídeo 
-  background: #000;
-  border-radius: 10px;
-  margin: 25px auto 0 auto;         centraliza e dá espaço em cima 
-  display: block;
-  object-fit: contain;              
-}
-*/
-
 /* ===== Responsividade ===== */
 @media (min-width: 768px) {
   body {
@@ -241,17 +215,17 @@ button:hover {
   transform: scale(1.03);
 }
 
-/* ====== PLAYER ====== */
+/* ===== Player de vídeo ===== */
 #videoPlayer {
-  display: block; /* garante que ele ocupe linha inteira */
-  width: calc(100% - 20px); /* igual à channel-item */
-  margin: 10px; /* mesmo espaçamento lateral */
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  display: none; /* escondido até selecionar canal */
+  flex: 2;
   background: #000;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
   aspect-ratio: 16 / 9;
   object-fit: contain;
 }
+
 
 /* ====== STATUS TEXT ====== */
 body > p {
