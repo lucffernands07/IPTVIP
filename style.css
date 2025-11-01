@@ -132,6 +132,7 @@ button:hover {
 
 /* ===== Player de vídeo ===== */
 #videoPlayer {
+  display: none; /* escondido até selecionar canal */
   flex: 2;
   background: #000;
   border-radius: 12px;
@@ -139,6 +140,7 @@ button:hover {
   aspect-ratio: 16 / 9;
   object-fit: contain;
 }
+
 
 /* ===== Itens de canais ===== */
 .channel-item {
