@@ -1,5 +1,5 @@
 // === Elementos principais ===
-const form = document.getElementById('loginForm'); // formulário de login
+const form = document.getElementById('loginForm');
 const list = document.getElementById('channelList');
 const player = document.getElementById('videoPlayer');
 const statusText = document.createElement('p');
@@ -8,10 +8,12 @@ document.body.insertBefore(statusText, list);
 const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/";
 
 let hls = null;
+let loginData = {};
 
-// === Evento de login ===
+// === LOGIN ===
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
+
   const username = form.username.value.trim();
   const password = form.password.value.trim();
   const listName = form.listname.value.trim();
@@ -22,83 +24,140 @@ form.addEventListener('submit', async (e) => {
     return;
   }
 
-  console.log("Campos preenchidos:", { username, password, listName, url });
+  loginData = { username, password, url };
+
   list.innerHTML = '';
-  statusText.textContent = `⏳ Carregando canais...`;
-
-  try {
-  // Força HTTPS para funcionar com o Worker
-  const safeUrl = url.replace(/^http:\/\//, "https://");
-  const fullUrl = `${safeUrl}/get.php?username=${username}&password=${password}&type=m3u_plus&output=m3u8`;
-  
-  // Monta a URL final totalmente codificada
-  const proxyUrl = `https://iptvip-proxy.lucianoffernands.workers.dev/?url=${encodeURIComponent(fullUrl)}`;
-
-  console.log("🛰️ URL final enviada ao Worker:", proxyUrl);
   statusText.textContent = "🚀 Conectando ao servidor IPTV...";
 
-  // --- Timeout de segurança (10 segundos) ---
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
-
-  let res;
   try {
-    res = await fetch(proxyUrl, { signal: controller.signal });
-  } catch (e) {
-    if (e.name === 'AbortError') throw new Error("⏰ Tempo limite excedido (servidor não respondeu)");
-    else throw e;
-  } finally {
-    clearTimeout(timeout);
-  }
+    const res = await fetch(`${WORKER_URL}?action=menu&username=${username}&password=${password}&url=${url}`);
+    if (!res.ok) throw new Error("Erro ao conectar ao servidor");
+    const data = await res.json();
 
-  console.log("📡 Resposta do Worker:", res.status, res.statusText);
-
-  if (!res.ok) throw new Error(`Erro ao buscar lista: ${res.status} ${res.statusText}`);
-
-  const text = await res.text();
-  console.log("📦 Tamanho do retorno:", text.length);
-
-  if (!text || text.length < 100) {
-    throw new Error("Resposta vazia ou inválida da M3U");
-  }
-
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
-
-  let added = 0;
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].startsWith('#EXTINF')) {
-      const name = lines[i].split(',').pop().trim();
-      const streamUrl = lines[i + 1]?.trim();
-      if (streamUrl && streamUrl.startsWith('http')) {
-        const proxyStreamUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
-        addChannelButton(name, proxyStreamUrl);
-        added++;
-      }
-    }
-  }
-
-  statusText.textContent = added > 0 ? `✅ ${added} canais carregados` : "🎬 Nenhum canal encontrado";
-} catch (err) {
-  console.error("🚨 Erro interno:", err);
-  statusText.textContent = "❌ Falha ao buscar lista de canais";
+    // Esconde o formulário após login
+    form.style.display = "none";
+    statusText.textContent = "📺 Escolha uma opção";
+    showMainMenu(data.menu);
+  } catch (err) {
+    console.error("❌ Falha:", err);
+    statusText.textContent = "❌ Falha ao conectar ao servidor IPTV";
   }
 });
 
-// === Criar botões de canais ===
-function addChannelButton(name, url) {
-  const btn = document.createElement('button');
-  btn.textContent = name;
-  btn.className = "channel-btn"; // usa CSS do style.css
-  btn.onclick = () => playChannel(url);
-  list.appendChild(btn);
+// === MENU PRINCIPAL ===
+function showMainMenu(menuList) {
+  list.innerHTML = '';
+
+  menuList.forEach(item => {
+    const btn = document.createElement('button');
+    btn.textContent = item === "tv" ? "📺 TV ao Vivo" :
+                      item === "filmes" ? "🎬 Filmes" :
+                      item === "series" ? "📂 Séries" : item;
+    btn.className = "main-btn";
+    btn.onclick = () => loadCategorias(item);
+    list.appendChild(btn);
+  });
+
+  // Botão sair (volta pro login)
+  const exitBtn = document.createElement('button');
+  exitBtn.textContent = "🚪 Sair";
+  exitBtn.className = "back-btn";
+  exitBtn.onclick = () => {
+    form.style.display = "block";
+    list.innerHTML = "";
+    statusText.textContent = "";
+  };
+  list.appendChild(exitBtn);
 }
 
-// === Reproduzir canal ===
+// === CARREGAR CATEGORIAS ===
+async function loadCategorias(tipo) {
+  list.innerHTML = '';
+  statusText.textContent = "📦 Carregando categorias...";
+
+  const { username, password, url } = loginData;
+  const endpoint = `${WORKER_URL}?action=categorias&tipo=${tipo}&username=${username}&password=${password}&url=${url}`;
+
+  try {
+    const res = await fetch(endpoint);
+    const data = await res.json();
+
+    statusText.textContent = "📚 Escolha uma categoria";
+    list.innerHTML = '';
+
+    data.categorias.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.textContent = cat;
+      btn.className = "category-btn";
+      btn.onclick = () => loadCanais(tipo, cat);
+      list.appendChild(btn);
+    });
+
+    const backBtn = document.createElement('button');
+    backBtn.textContent = "⬅️ Voltar ao Menu";
+    backBtn.className = "back-btn";
+    backBtn.onclick = () => showMainMenu(["tv", "filmes", "series"]);
+    list.appendChild(backBtn);
+
+  } catch (err) {
+    console.error(err);
+    statusText.textContent = "❌ Falha ao carregar categorias";
+  }
+}
+
+// === CARREGAR CANAIS ===
+async function loadCanais(tipo, categoria) {
+  list.innerHTML = '';
+  statusText.textContent = `📡 Carregando canais de ${categoria}...`;
+
+  const { username, password, url } = loginData;
+  const endpoint = `${WORKER_URL}?action=canais&tipo=${tipo}&categoria=${encodeURIComponent(categoria)}&username=${username}&password=${password}&url=${url}`;
+
+  try {
+    const res = await fetch(endpoint);
+    const data = await res.json();
+
+    statusText.textContent = `✅ ${data.total} canais encontrados`;
+    list.innerHTML = '';
+
+    data.canais.forEach(ch => {
+      const div = document.createElement('div');
+      div.className = "channel-item";
+
+      const logo = document.createElement('img');
+      logo.src = ch.logo || 'https://via.placeholder.com/60x60?text=TV';
+      logo.className = "channel-logo";
+
+      const name = document.createElement('span');
+      name.textContent = ch.nome;
+      name.className = "channel-name";
+
+      div.appendChild(logo);
+      div.appendChild(name);
+      div.onclick = () => playChannel(ch.url);
+      list.appendChild(div);
+    });
+
+    const backBtn = document.createElement('button');
+    backBtn.textContent = "⬅️ Voltar às Categorias";
+    backBtn.className = "back-btn";
+    backBtn.onclick = () => loadCategorias(tipo);
+    list.appendChild(backBtn);
+
+  } catch (err) {
+    console.error(err);
+    statusText.textContent = "❌ Falha ao carregar canais";
+  }
+}
+
+// === PLAYER ===
 function playChannel(url) {
   if (hls) {
     hls.destroy();
     hls = null;
   }
+
+  player.style.display = "block";
 
   if (Hls.isSupported()) {
     hls = new Hls();
