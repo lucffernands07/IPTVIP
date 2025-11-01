@@ -29,10 +29,11 @@ form.addEventListener('submit', async (e) => {
   try {
     // Monta o link completo com os parâmetros corretos
     const fullUrl = `${url}/get.php?username=${username}&password=${password}&type=m3u_plus&output=m3u8`;
-const proxyUrl = `https://iptvip-proxy.lucianoffernands.workers.dev/?url=${encodeURIComponent(fullUrl)}`;
-    console.log("Fetch URL:", fetchUrl);
+    const proxyUrl = `${WORKER_URL}?url=${encodeURIComponent(fullUrl)}`;
 
-    const res = await fetch(fetchUrl);
+    console.log("Fetch URL:", proxyUrl);
+
+    const res = await fetch(proxyUrl);
     if (!res.ok) throw new Error('Erro ao buscar lista');
 
     const text = await res.text();
@@ -44,8 +45,8 @@ const proxyUrl = `https://iptvip-proxy.lucianoffernands.workers.dev/?url=${encod
         const name = lines[i].split(',').pop().trim();
         const streamUrl = lines[i + 1]?.trim();
         if (streamUrl && streamUrl.startsWith('http')) {
-          const proxyUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
-          addChannelButton(name, proxyUrl);
+          const proxyStreamUrl = `${WORKER_URL}stream?url=${encodeURIComponent(streamUrl)}`;
+          addChannelButton(name, proxyStreamUrl);
           added++;
         }
       }
