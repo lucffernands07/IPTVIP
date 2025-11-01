@@ -31,7 +31,10 @@ form.addEventListener('submit', async (e) => {
 
   try {
     // Faz fetch do menu principal
-    const res = await fetch(`${WORKER_URL}?action=menu&username=${username}&password=${password}&url=${encodeURIComponent(url)}`);
+    const safeUrl = url.replace(/^http:\/\//, "https://");
+const res = await fetch(`${WORKER_URL}?action=menu&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&url=${encodeURIComponent(safeUrl)}`, {
+  headers: { "Content-Type": "application/json" },
+});
     if (!res.ok) throw new Error("Erro ao conectar ao servidor");
     const data = await res.json();
 
