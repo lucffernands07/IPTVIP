@@ -30,51 +30,52 @@ form.addEventListener('submit', async (e) => {
   statusText.textContent = "🚀 Conectando ao servidor IPTV...";
 
   try {
-  // 🔒 Força HTTPS e remove barras extras
-  let safeUrl = url.trim();
-  if (safeUrl.startsWith("http://")) {
-    safeUrl = safeUrl.replace("http://", "https://");
-  }
-  if (safeUrl.endsWith("/")) {
-    safeUrl = safeUrl.slice(0, -1);
-  }
+    // 🔒 Força HTTPS e remove barras extras
+    let safeUrl = url.trim();
+    if (safeUrl.startsWith("http://")) {
+      safeUrl = safeUrl.replace("http://", "https://");
+    }
+    if (safeUrl.endsWith("/")) {
+      safeUrl = safeUrl.slice(0, -1);
+    }
 
-  console.log("🌐 URL segura usada:", safeUrl);
+    console.log("🌐 URL segura usada:", safeUrl);
 
-  // 🛰️ Monta a URL de requisição ao Worker
-  const fetchUrl = `${WORKER_URL}?action=menu&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&url=${encodeURIComponent(safeUrl)}`;
+    // 🛰️ Monta a URL de requisição ao Worker
+    const fetchUrl = `${WORKER_URL}?action=menu&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&url=${encodeURIComponent(safeUrl)}`;
 
-  console.log("🚀 Solicitando menu em:", fetchUrl);
+    console.log("🚀 Solicitando menu em:", fetchUrl);
 
-  // 🧠 Tenta com CORS normal primeiro
-  let res;
-  try {
-    res = await fetch(fetchUrl, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      mode: "cors",
-    });
+    // 🧠 Tenta com CORS normal primeiro
+    let res;
+    try {
+      res = await fetch(fetchUrl, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        mode: "cors",
+      });
+    } catch (err) {
+      console.warn("⚠️ CORS falhou, tentando no-cors:", err);
+      res = await fetch(fetchUrl, { method: "GET", mode: "no-cors" });
+    }
+
+    if (!res || !res.ok) {
+      throw new Error(`Erro ao conectar ao servidor (status: ${res?.status || "sem resposta"})`);
+    }
+
+    const data = await res.json();
+    console.log("✅ Menu recebido:", data);
+
+    // 🎨 Atualiza UI
+    form.style.display = "none";
+    statusText.textContent = "📺 Escolha uma opção";
+    showMainMenu(data.menu);
+
   } catch (err) {
-    console.warn("⚠️ CORS falhou, tentando no-cors:", err);
-    res = await fetch(fetchUrl, { method: "GET", mode: "no-cors" });
+    console.error("❌ Falha:", err);
+    statusText.textContent = "❌ Falha ao conectar ao servidor IPTV";
   }
-
-  if (!res || !res.ok) {
-    throw new Error(`Erro ao conectar ao servidor (status: ${res?.status || "sem resposta"})`);
-  }
-
-  const data = await res.json();
-  console.log("✅ Menu recebido:", data);
-
-  // 🎨 Atualiza UI
-  form.style.display = "none";
-  statusText.textContent = "📺 Escolha uma opção";
-  showMainMenu(data.menu);
-
-} catch (err) {
-  console.error("❌ Falha:", err);
-  statusText.textContent = "❌ Falha ao conectar ao servidor IPTV";
-}
+}); // <-- ✅ fecha o listener aqui
 
 // === MENU PRINCIPAL ===
 function showMainMenu(menuList) {
@@ -82,9 +83,10 @@ function showMainMenu(menuList) {
 
   menuList.forEach(item => {
     const btn = document.createElement('button');
-    btn.textContent = item === "tv" ? "📺 TV ao Vivo" :
-                      item === "filmes" ? "🎬 Filmes" :
-                      item === "series" ? "📂 Séries" : item;
+    btn.textContent =
+      item === "tv" ? "📺 TV ao Vivo" :
+      item === "filmes" ? "🎬 Filmes" :
+      item === "series" ? "📂 Séries" : item;
     btn.className = "main-btn";
     btn.onclick = () => loadCategorias(item);
     list.appendChild(btn);
