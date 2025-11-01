@@ -162,6 +162,7 @@ async function loadCanais(tipo, categoria) {
 }
 
 // === PLAYER ===
+// === PLAYER ===
 function playChannel(url) {
   if (hls) {
     hls.destroy();
