@@ -29,7 +29,7 @@ form.addEventListener('submit', async (e) => {
   try {
     // Monta o link completo com os parâmetros corretos
     const fullUrl = `${url}/get.php?username=${username}&password=${password}&type=m3u_plus&output=m3u8`;
-    const fetchUrl = `${WORKER_URL}?url=${encodeURIComponent(fullUrl)}`;
+const proxyUrl = `https://iptvip-proxy.lucianoffernands.workers.dev/?url=${encodeURIComponent(fullUrl)}`;
     console.log("Fetch URL:", fetchUrl);
 
     const res = await fetch(fetchUrl);
