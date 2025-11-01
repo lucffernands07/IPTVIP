@@ -27,20 +27,29 @@ form.addEventListener('submit', async (e) => {
   statusText.textContent = `⏳ Carregando canais...`;
 
   try {
-  // Monta o link completo
   const fullUrl = `${url}/get.php?username=${username}&password=${password}&type=m3u_plus&output=m3u8`;
   const proxyUrl = `${WORKER_URL}?url=${encodeURIComponent(fullUrl)}`;
 
   console.log("🛰️ URL final enviada ao Worker:", proxyUrl);
   statusText.textContent = "🚀 Conectando ao servidor IPTV...";
 
-  const res = await fetch(proxyUrl);
+  // --- Timeout de segurança (10 segundos) ---
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  let res;
+  try {
+    res = await fetch(proxyUrl, { signal: controller.signal });
+  } catch (e) {
+    if (e.name === 'AbortError') throw new Error("⏰ Tempo limite excedido (servidor não respondeu)");
+    else throw e;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   console.log("📡 Resposta do Worker:", res.status, res.statusText);
 
-  if (!res.ok) {
-    throw new Error(`Erro ao buscar lista: ${res.status} ${res.statusText}`);
-  }
+  if (!res.ok) throw new Error(`Erro ao buscar lista: ${res.status} ${res.statusText}`);
 
   const text = await res.text();
   console.log("📦 Tamanho do retorno:", text.length);
@@ -65,11 +74,10 @@ form.addEventListener('submit', async (e) => {
   }
 
   statusText.textContent = added > 0 ? `✅ ${added} canais carregados` : "🎬 Nenhum canal encontrado";
-
 } catch (err) {
   console.error("🚨 Erro interno:", err);
   statusText.textContent = "❌ Falha ao buscar lista de canais";
-}
+  }
 });
 
 // === Criar botões de canais ===
