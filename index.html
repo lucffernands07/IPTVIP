@@ -19,11 +19,43 @@
   </form>
 
   <!-- Menu de categorias -->
-  <div id="menu" style="display:none; margin-top:10px;">
-    <button class="categoryBtn" data-cat="LIVE">TV Ao Vivo</button>
-    <button class="categoryBtn" data-cat="SERIES">Séries</button>
-    <button class="categoryBtn" data-cat="FILMES">Filmes</button>
+<div id="menu" class="menu-tiles" aria-label="Menu principal">
+  <div class="tiles-row">
+    <button class="tile tile-large tile-live" data-tipo="tv" aria-label="TV ao vivo">
+      <div class="tile-icon">📺</div>
+      <div class="tile-title">LIVE TV</div>
+    </button>
+
+    <button class="tile tile-large tile-movies" data-tipo="filmes" aria-label="Filmes">
+      <div class="tile-icon">🎬</div>
+      <div class="tile-title">MOVIES</div>
+    </button>
+
+    <button class="tile tile-large tile-series" data-tipo="series" aria-label="Séries">
+      <div class="tile-icon">🎞️</div>
+      <div class="tile-title">SERIES</div>
+    </button>
   </div>
+
+  <div class="tiles-row small-row">
+    <button class="tile tile-small tile-catchup" data-tipo="catchup" aria-label="Catch up">
+      <div class="tile-icon">⏪</div>
+      <div class="tile-title">CATCH UP</div>
+    </button>
+
+    <button id="menu-account" class="tile tile-small tile-account" aria-label="Account">
+      <div class="tile-icon">👤</div>
+      <div class="tile-title">ACCOUNT</div>
+    </button>
+
+    <button id="menu-settings" class="tile tile-small tile-settings" aria-label="Settings">
+      <div class="tile-icon">⚙️</div>
+      <div class="tile-title">SETTINGS</div>
+    </button>
+  </div>
+
+  <button id="menu-logout" class="back-btn">🚪 Sair</button>
+</div>
 
   <!-- Lista de canais -->
   <div id="channelList" style="margin-top:10px;"></div>
