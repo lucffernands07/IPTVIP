@@ -170,13 +170,30 @@ function playChannel(url) {
 
   player.style.display = "block";
 
-  if (Hls.isSupported()) {
-    hls = new Hls();
-    hls.loadSource(url);
-    hls.attachMedia(player);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      player.play().catch(() => alert("Clique no player para iniciar o vídeo."));
+ if (Hls.isSupported()) {
+  // 🔒 cria o player e redireciona o stream via HTTPS (proxy do Worker)
+  const hls = new Hls();
+  const secureUrl = `${WORKER_URL}?action=proxy&target=${encodeURIComponent(url)}`;
+
+  hls.loadSource(secureUrl);
+  hls.attachMedia(player);
+
+  // 🎬 inicia o vídeo quando o manifesto é carregado
+  hls.on(Hls.Events.MANIFEST_PARSED, () => {
+    player.play().catch(() => {
+      alert("Clique no player para iniciar o vídeo.");
     });
+  });
+} else if (player.canPlayType("application/vnd.apple.mpegurl")) {
+  // 🔄 fallback para iOS/Safari (nativo)
+  player.src = `${WORKER_URL}?action=proxy&target=${encodeURIComponent(url)}`;
+  player.addEventListener("loadedmetadata", () => {
+    player.play().catch(() => {
+      alert("Clique no player para iniciar o vídeo.");
+    });
+  });
+}
+
   } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
     player.src = url;
     player.play();
