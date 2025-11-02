@@ -129,7 +129,7 @@ function initMenuTiles() {
     player.style.display = "none";
     player.src = "";
   };
-  }
+  
 }
 
 // === CARREGAR CATEGORIAS ===
