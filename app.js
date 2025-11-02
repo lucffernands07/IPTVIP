@@ -106,13 +106,13 @@ function initMenuTiles() {
 
   if (logoutBtn) {
     logoutBtn.onclick = () => {
-  menu.style.display = "none"; // esconde menu novamente
-  form.style.display = "block";
-  list.innerHTML = "";
-  list.style.display = "none";
-  statusText.textContent = "";
+      menu.style.display = "none";
+      form.style.display = "block";
+      list.innerHTML = "";
+      statusText.textContent = "";
     };
   }
+}
 
 // === CARREGAR CATEGORIAS ===
 async function loadCategorias(tipo) {
