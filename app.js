@@ -6,6 +6,9 @@ const statusText = document.createElement('p');
 document.body.insertBefore(statusText, list);
 const menu = document.querySelector('.menu-tiles'); // novo menu
 
+const menu = document.querySelector('.menu-tiles');
+if (menu) menu.style.display = "none"; // 🔒 esconde o menu ao carregar
+
 const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/";
 
 let hls = null;
@@ -106,13 +109,13 @@ function initMenuTiles() {
 
   if (logoutBtn) {
     logoutBtn.onclick = () => {
-      menu.style.display = "none";
-      form.style.display = "block";
-      list.innerHTML = "";
-      statusText.textContent = "";
+  menu.style.display = "none"; // esconde menu novamente
+  form.style.display = "block";
+  list.innerHTML = "";
+  list.style.display = "none";
+  statusText.textContent = "";
     };
   }
-}
 
 // === CARREGAR CATEGORIAS ===
 async function loadCategorias(tipo) {
