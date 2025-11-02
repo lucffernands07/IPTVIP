@@ -4,10 +4,15 @@ const list = document.getElementById('channelList');
 const player = document.getElementById('videoPlayer');
 const statusText = document.createElement('p');
 document.body.insertBefore(statusText, list);
-const menu = document.querySelector('.menu-tiles'); // novo menu
 
+// ✅ Corrigido: apenas UMA definição de "menu"
 const menu = document.querySelector('.menu-tiles');
-if (menu) menu.style.display = "none"; // 🔒 esconde o menu ao carregar
+
+// 🔒 Esconde o menu e lista ao carregar a página
+window.addEventListener("DOMContentLoaded", () => {
+  if (menu) menu.style.display = "none";
+  if (list) list.style.display = "none";
+});
 
 const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/";
 
