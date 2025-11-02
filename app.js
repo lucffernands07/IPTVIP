@@ -70,7 +70,7 @@ function initMenuTiles() {
   const seriesBtn = document.querySelector('.tile-series');
   const accountBtn = document.querySelector('.tile-account');
   const settingsBtn = document.querySelector('.tile-settings');
-  const logoutBtn = document.querySelector('.menu-logout');
+  const logoutBtn = document.querySelector('.tile-logout');
 
   if (liveBtn) {
     liveBtn.onclick = () => {
