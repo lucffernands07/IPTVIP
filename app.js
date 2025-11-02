@@ -134,7 +134,6 @@ function initMenuTiles() {
     player.src = "";
   });
   }
-}
 
 // === CARREGAR CATEGORIAS ===
 async function loadCategorias(tipo) {
