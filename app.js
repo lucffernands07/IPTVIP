@@ -135,8 +135,6 @@ function initMenuTiles() {
   });
   }
 }
-  
-                                                      }
 
 // === CARREGAR CATEGORIAS ===
 async function loadCategorias(tipo) {
