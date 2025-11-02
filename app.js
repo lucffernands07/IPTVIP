@@ -95,6 +95,51 @@ function playChannel(url) {
   }
 }
 
+// === CONECTA OS BOTÕES DO MENU VISUAL ===
+function initMenuButtons() {
+  const liveBtn = document.querySelector('.tile-live');
+  const moviesBtn = document.querySelector('.tile-movies');
+  const seriesBtn = document.querySelector('.tile-series');
+  const accountBtn = document.querySelector('.tile-account');
+  const settingsBtn = document.querySelector('.tile-settings');
+  const logoutBtn = document.querySelector('.tile-logout');
+
+  // 🟢 Liga cada tile à função correspondente
+  if (liveBtn) liveBtn.onclick = () => {
+    document.querySelector('.menu-tiles').style.display = "none";
+    loadCategorias("tv");
+  };
+
+  if (moviesBtn) moviesBtn.onclick = () => {
+    document.querySelector('.menu-tiles').style.display = "none";
+    loadCategorias("filmes");
+  };
+
+  if (seriesBtn) seriesBtn.onclick = () => {
+    document.querySelector('.menu-tiles').style.display = "none";
+    loadCategorias("series");
+  };
+
+  if (accountBtn) accountBtn.onclick = () => {
+    alert("📋 Em breve: informações da conta!");
+  };
+
+  if (settingsBtn) settingsBtn.onclick = () => {
+    alert("⚙️ Em breve: configurações!");
+  };
+
+  if (logoutBtn) logoutBtn.onclick = () => {
+    // volta ao login
+    document.querySelector('.menu-tiles').style.display = "none";
+    form.style.display = "block";
+    list.innerHTML = "";
+    statusText.textContent = "";
+  };
+}
+
+// Chama o inicializador assim que a página carrega
+window.addEventListener("DOMContentLoaded", initMenuButtons);
+
 // === Service Worker ===
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./service-worker.js')
