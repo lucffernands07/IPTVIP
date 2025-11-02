@@ -261,22 +261,37 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.error('❌ Falha ao registrar o Service Worker:', err));
 }
 
-// === Versão no front ===
-window.onload = () => {
-  navigator.serviceWorker.ready.then(registration => {
-    if (registration.active) {
-      registration.active.postMessage({ type: 'GET_VERSION' });
-      navigator.serviceWorker.addEventListener('message', event => {
-        if (event.data && event.data.type === 'VERSION_INFO') {
-          let versionEl = document.getElementById('app-version');
-          if (!versionEl) {
-            versionEl = document.createElement('div');
-            versionEl.id = 'app-version';
-            document.body.appendChild(versionEl);
+// === Inicialização da página ===
+window.addEventListener('DOMContentLoaded', () => {
+
+  // Persistência do login
+  const savedLogin = localStorage.getItem('iptvipLogin');
+  if (savedLogin) {
+    loginData = JSON.parse(savedLogin);
+    form.style.display = "none";
+    list.style.display = "none";
+    statusText.textContent = "📺 Escolha uma opção";
+    showMainMenu(); // mostra o menu direto
+  }
+
+  // Service Worker e versão
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(registration => {
+      if (registration.active) {
+        registration.active.postMessage({ type: 'GET_VERSION' });
+        navigator.serviceWorker.addEventListener('message', event => {
+          if (event.data && event.data.type === 'VERSION_INFO') {
+            let versionEl = document.getElementById('app-version');
+            if (!versionEl) {
+              versionEl = document.createElement('div');
+              versionEl.id = 'app-version';
+              document.body.appendChild(versionEl);
+            }
+            versionEl.textContent = `Versão ${event.data.version}`;
           }
-          versionEl.textContent = `Versão ${event.data.version}`;
-        }
-      });
-    }
-  });
-};
+        });
+      }
+    });
+  }
+
+});
