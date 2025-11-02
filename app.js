@@ -70,66 +70,66 @@ function initMenuTiles() {
   const seriesBtn = document.querySelector('.tile-series');
   const accountBtn = document.querySelector('.tile-account');
   const settingsBtn = document.querySelector('.tile-settings');
-  const logoutBtn = document.querySelector('.menu-logout');
+  const logoutBtn = document.getElementById('menu-logout'); // garante seleção correta
 
+  // Botões principais
   if (liveBtn) {
-    liveBtn.onclick = () => {
+    liveBtn.addEventListener('click', () => {
       menu.style.display = "none";
       list.style.display = "block";
       loadCategorias("tv");
-    };
+    });
   }
 
   if (moviesBtn) {
-    moviesBtn.onclick = () => {
+    moviesBtn.addEventListener('click', () => {
       menu.style.display = "none";
       list.style.display = "block";
       loadCategorias("filmes");
-    };
+    });
   }
 
   if (seriesBtn) {
-    seriesBtn.onclick = () => {
+    seriesBtn.addEventListener('click', () => {
       menu.style.display = "none";
       list.style.display = "block";
       loadCategorias("series");
-    };
+    });
   }
 
   if (accountBtn) {
-    accountBtn.onclick = () => alert("📋 Em breve: informações da conta!");
+    accountBtn.addEventListener('click', () => alert("📋 Em breve: informações da conta!"));
   }
 
   if (settingsBtn) {
-    settingsBtn.onclick = () => alert("⚙️ Em breve: configurações!");
+    settingsBtn.addEventListener('click', () => alert("⚙️ Em breve: configurações!"));
   }
 
+  // Botão Sair
   if (logoutBtn) {
-  logoutBtn.onclick = () => {
-    // Oculta o menu e lista de canais
-    menu.style.display = "none";
-    list.style.display = "none";
-    list.innerHTML = "";
+    logoutBtn.addEventListener('click', () => {
+      // Oculta menu e lista
+      menu.style.display = "none";
+      list.style.display = "none";
+      list.innerHTML = "";
 
-    // Mostra o formulário de login
-    form.style.display = "block";
+      // Mostra formulário de login
+      form.style.display = "block";
 
-    // Limpa o texto de status
-    statusText.textContent = "";
+      // Limpa status e dados de login
+      statusText.textContent = "";
+      loginData = {};
 
-    // Limpa dados de login
-    loginData = {};
-
-    // Oculta e reseta o player de vídeo
-    if (hls) {
-      hls.destroy();
-      hls = null;
-    }
-    player.style.display = "none";
-    player.src = "";
-  };
+      // Oculta e reseta player
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+      player.style.display = "none";
+      player.src = "";
+    });
   }
-}
+                                                      }
 
 // === CARREGAR CATEGORIAS ===
 async function loadCategorias(tipo) {
