@@ -2,18 +2,14 @@
 const form = document.getElementById('loginForm');
 const list = document.getElementById('channelList');
 const player = document.getElementById('videoPlayer');
-const menuTiles = document.querySelector('.menu-tiles'); // ⬅️ adiciona referência ao menu visual
 const statusText = document.createElement('p');
 document.body.insertBefore(statusText, list);
+const menu = document.querySelector('.menu-tiles'); // novo menu
 
 const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/";
 
 let hls = null;
 let loginData = {};
-
-// 🔒 Garante que o menu e o player comecem escondidos
-if (menuTiles) menuTiles.style.display = "none";
-player.style.display = "none";
 
 // === LOGIN ===
 form.addEventListener('submit', async (e) => {
@@ -46,21 +42,162 @@ form.addEventListener('submit', async (e) => {
 
     const data = await res.json();
 
-    // ✅ Login bem-sucedido:
+    // Esconde o formulário e mostra menu
     form.style.display = "none";
+    list.style.display = "none";
     statusText.textContent = "📺 Escolha uma opção";
 
-    // ⬅️ Mostra o novo menu visual (tiles)
-    if (menuTiles) menuTiles.style.display = "grid";
-
-    // (Opcional) se quiser manter o menu antigo, chama showMainMenu:
-    // showMainMenu(data.menu);
+    showMainMenu(); // exibe o menu novo
 
   } catch (err) {
     console.error("❌ Falha:", err);
     statusText.textContent = "❌ Falha ao conectar ao servidor IPTV";
   }
 });
+
+// === NOVO MENU VISUAL ===
+function showMainMenu() {
+  if (menu) {
+    menu.style.display = "grid"; // mostra o menu
+    initMenuTiles();
+  }
+}
+
+// === LIGA OS BOTÕES DO NOVO MENU ===
+function initMenuTiles() {
+  const liveBtn = document.querySelector('.tile-live');
+  const moviesBtn = document.querySelector('.tile-movies');
+  const seriesBtn = document.querySelector('.tile-series');
+  const accountBtn = document.querySelector('.tile-account');
+  const settingsBtn = document.querySelector('.tile-settings');
+  const logoutBtn = document.querySelector('.tile-logout');
+
+  if (liveBtn) {
+    liveBtn.onclick = () => {
+      menu.style.display = "none";
+      list.style.display = "block";
+      loadCategorias("tv");
+    };
+  }
+
+  if (moviesBtn) {
+    moviesBtn.onclick = () => {
+      menu.style.display = "none";
+      list.style.display = "block";
+      loadCategorias("filmes");
+    };
+  }
+
+  if (seriesBtn) {
+    seriesBtn.onclick = () => {
+      menu.style.display = "none";
+      list.style.display = "block";
+      loadCategorias("series");
+    };
+  }
+
+  if (accountBtn) {
+    accountBtn.onclick = () => alert("📋 Em breve: informações da conta!");
+  }
+
+  if (settingsBtn) {
+    settingsBtn.onclick = () => alert("⚙️ Em breve: configurações!");
+  }
+
+  if (logoutBtn) {
+    logoutBtn.onclick = () => {
+      menu.style.display = "none";
+      form.style.display = "block";
+      list.innerHTML = "";
+      statusText.textContent = "";
+    };
+  }
+}
+
+// === CARREGAR CATEGORIAS ===
+async function loadCategorias(tipo) {
+  list.innerHTML = '';
+  statusText.textContent = "📦 Carregando categorias...";
+
+  const { username, password, url } = loginData;
+  const endpoint = `${WORKER_URL}?action=categorias&tipo=${tipo}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&url=${encodeURIComponent(url)}`;
+
+  try {
+    const res = await fetch(endpoint, { method: "GET", headers: { "Content-Type": "application/json" }, mode: "cors" });
+    if (!res.ok) throw new Error("Erro ao buscar categorias");
+
+    const data = await res.json();
+    statusText.textContent = "📚 Escolha uma categoria";
+    list.innerHTML = '';
+
+    data.categorias.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.textContent = cat;
+      btn.className = "category-btn";
+      btn.onclick = () => loadCanais(tipo, cat);
+      list.appendChild(btn);
+    });
+
+    const backBtn = document.createElement('button');
+    backBtn.textContent = "⬅️ Voltar ao Menu";
+    backBtn.className = "back-btn";
+    backBtn.onclick = () => {
+      list.style.display = "none";
+      showMainMenu();
+    };
+    list.appendChild(backBtn);
+
+  } catch (err) {
+    console.error(err);
+    statusText.textContent = "❌ Falha ao carregar categorias";
+  }
+}
+
+// === CARREGAR CANAIS ===
+async function loadCanais(tipo, categoria) {
+  list.innerHTML = '';
+  statusText.textContent = `📡 Carregando canais de ${categoria}...`;
+
+  const { username, password, url } = loginData;
+  const endpoint = `${WORKER_URL}?action=canais&tipo=${tipo}&categoria=${encodeURIComponent(categoria)}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&url=${encodeURIComponent(url)}`;
+
+  try {
+    const res = await fetch(endpoint, { method: "GET", headers: { "Content-Type": "application/json" }, mode: "cors" });
+    if (!res.ok) throw new Error("Erro ao buscar canais");
+
+    const data = await res.json();
+    statusText.textContent = `✅ ${data.total} canais encontrados`;
+    list.innerHTML = '';
+
+    data.canais.forEach(ch => {
+      const div = document.createElement('div');
+      div.className = "channel-item";
+
+      const logo = document.createElement('img');
+      logo.src = ch.logo || 'https://via.placeholder.com/60x60?text=TV';
+      logo.className = "channel-logo";
+
+      const name = document.createElement('span');
+      name.textContent = ch.nome;
+      name.className = "channel-name";
+
+      div.appendChild(logo);
+      div.appendChild(name);
+      div.onclick = () => playChannel(ch.url);
+      list.appendChild(div);
+    });
+
+    const backBtn = document.createElement('button');
+    backBtn.textContent = "⬅️ Voltar às Categorias";
+    backBtn.className = "back-btn";
+    backBtn.onclick = () => loadCategorias(tipo);
+    list.appendChild(backBtn);
+
+  } catch (err) {
+    console.error(err);
+    statusText.textContent = "❌ Falha ao carregar canais";
+  }
+}
 
 // === PLAYER ===
 function playChannel(url) {
@@ -69,7 +206,7 @@ function playChannel(url) {
     hls = null;
   }
 
-  player.style.display = "block"; // mostra o player só aqui
+  player.style.display = "block";
 
   if (Hls.isSupported()) {
     const hlsInstance = new Hls();
@@ -82,7 +219,6 @@ function playChannel(url) {
       });
     });
     hls = hlsInstance;
-
   } else if (player.canPlayType("application/vnd.apple.mpegurl")) {
     player.src = `${WORKER_URL}?action=proxy&target=${encodeURIComponent(url)}`;
     player.addEventListener("loadedmetadata", () => {
@@ -94,42 +230,6 @@ function playChannel(url) {
     alert("Seu navegador não suporta M3U8.");
   }
 }
-
-// === CONECTA OS BOTÕES DO MENU VISUAL ===
-function initMenuTiles() {
-  const liveBtn = document.querySelector('.tile-live');
-  const moviesBtn = document.querySelector('.tile-movies');
-  const seriesBtn = document.querySelector('.tile-series');
-  const accountBtn = document.querySelector('.tile-account');
-  const settingsBtn = document.querySelector('.tile-settings');
-  const logoutBtn = document.querySelector('.tile-logout');
-
-  const menu = document.querySelector('.menu-tiles');
-
-  const showListAndLoad = (tipo) => {
-    if (menu) menu.style.display = "none";   // esconde os tiles
-    list.style.display = "block";            // mostra o container da lista
-    loadCategorias(tipo);                     // carrega as categorias
-  };
-
-  if (liveBtn) liveBtn.onclick = () => showListAndLoad("tv");
-  if (moviesBtn) moviesBtn.onclick = () => showListAndLoad("filmes");
-  if (seriesBtn) seriesBtn.onclick = () => showListAndLoad("series");
-
-  if (accountBtn) accountBtn.onclick = () => alert("📋 Em breve: informações da conta!");
-  if (settingsBtn) settingsBtn.onclick = () => alert("⚙️ Em breve: configurações!");
-
-  if (logoutBtn) logoutBtn.onclick = () => {
-    if (menu) menu.style.display = "none"; 
-    form.style.display = "block";
-    list.style.display = "none";
-    list.innerHTML = "";
-    statusText.textContent = "";
-  };
-}
-
-// Inicializa os tiles quando a página carrega
-window.addEventListener("DOMContentLoaded", initMenuTiles);
 
 // === Service Worker ===
 if ('serviceWorker' in navigator) {
