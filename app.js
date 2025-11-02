@@ -107,28 +107,34 @@ function initMenuTiles() {
 
   // Botão Sair
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      // Oculta menu e lista
-      menu.style.display = "none";
-      list.style.display = "none";
-      list.innerHTML = "";
+  logoutBtn.addEventListener('click', () => {
+    // Oculta menu e lista
+    menu.style.display = "none";
+    list.style.display = "none";
+    list.innerHTML = "";
 
-      // Mostra formulário de login
-      form.style.display = "block";
+    // Mostra formulário de login e reseta layout
+    form.style.display = "flex";
+    form.style.flexDirection = "column";
+    form.style.alignItems = "center";
+    form.style.gap = "10px";
+    form.reset();
+    Array.from(form.elements).forEach(el => el.disabled = false);
 
-      // Limpa status e dados de login
-      statusText.textContent = "";
-      loginData = {};
+    // Limpa status e dados de login
+    statusText.textContent = "";
+    loginData = {};
 
-      // Oculta e reseta player
-      if (hls) {
-        hls.destroy();
-        hls = null;
-      }
-      player.style.display = "none";
-      player.src = "";
-    });
-  }
+    // Oculta e reseta player
+    if (hls) {
+      hls.destroy();
+      hls = null;
+    }
+    player.style.display = "none";
+    player.src = "";
+  });
+}
+  
                                                       }
 
 // === CARREGAR CATEGORIAS ===
