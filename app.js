@@ -53,6 +53,7 @@ form.addEventListener('submit', async (e) => {
     // Esconde o formulário e mostra menu
     form.style.display = "none";
     list.style.display = "none";
+    menu.style.display = "grid";
     statusText.textContent = "📺 Escolha uma opção";
 
     showMainMenu(); // exibe o menu novo
@@ -78,7 +79,7 @@ function initMenuTiles() {
   const seriesBtn = document.querySelector('.tile-series');
   const accountBtn = document.querySelector('.tile-account');
   const settingsBtn = document.querySelector('.tile-settings');
-  const logoutBtn = document.querySelector('.tile-logout');
+  const logoutBtn = document.getElementById('menu-logout');
 
   if (liveBtn) {
     liveBtn.onclick = () => {
