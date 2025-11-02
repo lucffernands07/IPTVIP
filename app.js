@@ -96,7 +96,6 @@ function playChannel(url) {
 }
 
 // === CONECTA OS BOTÕES DO MENU VISUAL ===
-// === CONECTA OS BOTÕES DO MENU VISUAL ===
 function initMenuTiles() {
   const liveBtn = document.querySelector('.tile-live');
   const moviesBtn = document.querySelector('.tile-movies');
@@ -105,32 +104,25 @@ function initMenuTiles() {
   const settingsBtn = document.querySelector('.tile-settings');
   const logoutBtn = document.querySelector('.tile-logout');
 
-  if (liveBtn) liveBtn.onclick = () => {
-    document.querySelector('.menu-tiles').style.display = "none";
-    loadCategorias("tv"); // ⬅️ aqui o parâmetro correto
+  const menu = document.querySelector('.menu-tiles');
+
+  const showListAndLoad = (tipo) => {
+    if (menu) menu.style.display = "none";   // esconde os tiles
+    list.style.display = "block";            // mostra o container da lista
+    loadCategorias(tipo);                     // carrega as categorias
   };
 
-  if (moviesBtn) moviesBtn.onclick = () => {
-    document.querySelector('.menu-tiles').style.display = "none";
-    loadCategorias("filmes"); // ⬅️ parâmetro correto
-  };
+  if (liveBtn) liveBtn.onclick = () => showListAndLoad("tv");
+  if (moviesBtn) moviesBtn.onclick = () => showListAndLoad("filmes");
+  if (seriesBtn) seriesBtn.onclick = () => showListAndLoad("series");
 
-  if (seriesBtn) seriesBtn.onclick = () => {
-    document.querySelector('.menu-tiles').style.display = "none";
-    loadCategorias("series"); // ⬅️ parâmetro correto
-  };
-
-  if (accountBtn) accountBtn.onclick = () => {
-    alert("📋 Em breve: informações da conta!");
-  };
-
-  if (settingsBtn) settingsBtn.onclick = () => {
-    alert("⚙️ Em breve: configurações!");
-  };
+  if (accountBtn) accountBtn.onclick = () => alert("📋 Em breve: informações da conta!");
+  if (settingsBtn) settingsBtn.onclick = () => alert("⚙️ Em breve: configurações!");
 
   if (logoutBtn) logoutBtn.onclick = () => {
-    document.querySelector('.menu-tiles').style.display = "none";
+    if (menu) menu.style.display = "none"; 
     form.style.display = "block";
+    list.style.display = "none";
     list.innerHTML = "";
     statusText.textContent = "";
   };
