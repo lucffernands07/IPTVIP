@@ -47,6 +47,9 @@ form.addEventListener('submit', async (e) => {
     list.style.display = "none";
     statusText.textContent = "📺 Escolha uma opção";
 
+    // Salva login depois de loginData ser preenchido e antes de mostrar o menu
+    localStorage.setItem('iptvipLogin', JSON.stringify(loginData));
+
     showMainMenu(); // exibe o menu novo
 
   } catch (err) {
