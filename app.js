@@ -106,10 +106,30 @@ function initMenuTiles() {
 
   if (logoutBtn) {
     logoutBtn.onclick = () => {
-      menu.style.display = "none";
-      form.style.display = "block";
-      list.innerHTML = "";
-      statusText.textContent = "";
+  // Esconde o menu
+  if (menu) menu.style.display = "none";
+
+  // Limpa os dados do formulário e mostra ele
+  form.reset();          // limpa todos os inputs
+  form.style.display = "flex";  // garante que o flex e gap sejam aplicados
+
+  // Limpa lista de canais e status
+  list.innerHTML = "";
+  list.style.display = "none";
+  statusText.textContent = "";
+
+  // Esconde o player e destrói HLS se ativo
+  if (player) {
+    player.pause();
+    player.style.display = "none";
+  }
+  if (hls) {
+    hls.destroy();
+    hls = null;
+  }
+
+  // Reseta os dados de login
+  loginData = {};
     };
   }
 }
