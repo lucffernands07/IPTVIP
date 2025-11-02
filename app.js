@@ -8,8 +8,8 @@ document.body.insertBefore(statusText, list);
 // ✅ Corrigido: apenas UMA definição de "menu"
 const menu = document.querySelector('.menu-tiles');
 
-// 🔒 Esconde o menu e lista ao carregar a página
-window.addEventListener("DOMContentLoaded", () => {
+// 🔒 Esconde o menu e a lista quando a página é carregada
+document.addEventListener("DOMContentLoaded", () => {
   if (menu) menu.style.display = "none";
   if (list) list.style.display = "none";
 });
