@@ -45,7 +45,6 @@ form.addEventListener('submit', async (e) => {
     // Esconde o formulário e mostra menu
     form.style.display = "none";
     list.style.display = "none";
-    menu.style.display = "grid";
     statusText.textContent = "📺 Escolha uma opção";
 
     showMainMenu(); // exibe o menu novo
