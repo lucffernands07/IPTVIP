@@ -1,20 +1,10 @@
 // === Elementos principais ===
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById('loginForm');
-  const list = document.getElementById('channelList');
-  const player = document.getElementById('videoPlayer');
-  const statusText = document.createElement('p');
-  document.body.insertBefore(statusText, list);
-
-  // salvar no escopo global para o restante do código
-  window.form = form;
-  window.list = list;
-  window.player = player;
-  window.statusText = statusText;
-
-  const menu = document.querySelector('.menu-tiles');
-  if (menu) menu.style.display = "none";
-});
+const form = document.getElementById('loginForm');
+const list = document.getElementById('channelList');
+const player = document.getElementById('videoPlayer');
+const statusText = document.createElement('p');
+document.body.insertBefore(statusText, list);
+const menu = document.querySelector('.menu-tiles'); // novo menu
 
 const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/";
 
