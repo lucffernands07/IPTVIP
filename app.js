@@ -58,7 +58,7 @@ form.addEventListener('submit', async (e) => {
 // === NOVO MENU VISUAL ===
 function showMainMenu() {
   if (menu) {
-    menu.style.display = "grid"; // mostra o menu
+    menu.style.display = "block"; // mostra o menu
     initMenuTiles();
   }
 }
