@@ -105,12 +105,29 @@ function initMenuTiles() {
   }
 
   if (logoutBtn) {
-    logoutBtn.onclick = () => {
-      menu.style.display = "none";
-      form.style.display = "block";
-      list.innerHTML = "";
-      statusText.textContent = "";
-    };
+  logoutBtn.onclick = () => {
+    // Oculta o menu e lista de canais
+    menu.style.display = "none";
+    list.style.display = "none";
+    list.innerHTML = "";
+
+    // Mostra o formulário de login
+    form.style.display = "block";
+
+    // Limpa o texto de status
+    statusText.textContent = "";
+
+    // Limpa dados de login
+    loginData = {};
+
+    // Oculta e reseta o player de vídeo
+    if (hls) {
+      hls.destroy();
+      hls = null;
+    }
+    player.style.display = "none";
+    player.src = "";
+  };
   }
 }
 
