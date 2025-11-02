@@ -133,6 +133,9 @@ function initMenuTiles() {
 
   // Reseta os dados de login
   loginData = {};
+
+      // remove os dados ao sair
+      localStorage.removeItem('iptvipLogin'); 
     };
   }
 }
