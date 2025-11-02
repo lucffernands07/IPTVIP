@@ -70,66 +70,48 @@ function initMenuTiles() {
   const seriesBtn = document.querySelector('.tile-series');
   const accountBtn = document.querySelector('.tile-account');
   const settingsBtn = document.querySelector('.tile-settings');
-  const logoutBtn = document.getElementById('menu-logout'); // garante seleção correta
+  const logoutBtn = document.querySelector('.menu-logout');
 
-  // Botões principais
   if (liveBtn) {
-    liveBtn.addEventListener('click', () => {
+    liveBtn.onclick = () => {
       menu.style.display = "none";
       list.style.display = "block";
       loadCategorias("tv");
-    });
+    };
   }
 
   if (moviesBtn) {
-    moviesBtn.addEventListener('click', () => {
+    moviesBtn.onclick = () => {
       menu.style.display = "none";
       list.style.display = "block";
       loadCategorias("filmes");
-    });
+    };
   }
 
   if (seriesBtn) {
-    seriesBtn.addEventListener('click', () => {
+    seriesBtn.onclick = () => {
       menu.style.display = "none";
       list.style.display = "block";
       loadCategorias("series");
-    });
+    };
   }
 
   if (accountBtn) {
-    accountBtn.addEventListener('click', () => alert("📋 Em breve: informações da conta!"));
+    accountBtn.onclick = () => alert("📋 Em breve: informações da conta!");
   }
 
   if (settingsBtn) {
-    settingsBtn.addEventListener('click', () => alert("⚙️ Em breve: configurações!"));
+    settingsBtn.onclick = () => alert("⚙️ Em breve: configurações!");
   }
 
-  // Botão Sair
   if (logoutBtn) {
-  logoutBtn.onclick = () => {
-    // Oculta menu e lista
-    menu.style.display = "none";
-    list.style.display = "none";
-    list.innerHTML = "";
-
-    // Mostra formulário de login
-    form.style.display = ""; // usa o CSS original
-    form.reset();            // limpa os inputs
-
-    // Limpa status e dados de login
-    statusText.textContent = "";
-    loginData = {};
-
-    // Oculta e reseta player
-    if (hls) {
-      hls.destroy();
-      hls = null;
-    }
-    player.style.display = "none";
-    player.src = "";
-  };
-  
+    logoutBtn.onclick = () => {
+      menu.style.display = "none";
+      form.style.display = "block";
+      list.innerHTML = "";
+      statusText.textContent = "";
+    };
+  }
 }
 
 // === CARREGAR CATEGORIAS ===
