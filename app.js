@@ -133,6 +133,7 @@ function initMenuTiles() {
     player.style.display = "none";
     player.src = "";
   });
+  }
 }
   
                                                       }
