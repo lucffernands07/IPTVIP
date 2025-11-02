@@ -107,7 +107,6 @@ function initMenuTiles() {
 
   // Botão Sair
   if (logoutBtn) {
-  if (logoutBtn) {
   logoutBtn.onclick = () => {
     // Oculta menu e lista
     menu.style.display = "none";
