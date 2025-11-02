@@ -1,17 +1,19 @@
 // === Elementos principais ===
-const form = document.getElementById('loginForm');
-const list = document.getElementById('channelList');
-const player = document.getElementById('videoPlayer');
-const statusText = document.createElement('p');
-document.body.insertBefore(statusText, list);
-
-// ✅ Corrigido: apenas UMA definição de "menu"
-const menu = document.querySelector('.menu-tiles');
-
-// 🔒 Esconde o menu e a lista quando a página é carregada
 document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById('loginForm');
+  const list = document.getElementById('channelList');
+  const player = document.getElementById('videoPlayer');
+  const statusText = document.createElement('p');
+  document.body.insertBefore(statusText, list);
+
+  // salvar no escopo global para o restante do código
+  window.form = form;
+  window.list = list;
+  window.player = player;
+  window.statusText = statusText;
+
+  const menu = document.querySelector('.menu-tiles');
   if (menu) menu.style.display = "none";
-  if (list) list.style.display = "none";
 });
 
 const WORKER_URL = "https://iptvip-proxy.lucianoffernands.workers.dev/";
